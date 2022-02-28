@@ -9,7 +9,7 @@
     "start": "node src/server.js",
     "dev": "wrangler dev src/server.js",
     "ngrok": "ngrok http 8787",
-    "test": "mocha test",
+    "test": "c8 mocha test",
     "fix": "eslint --fix '**/*.js'",
     "lint": "eslint '**/*.js'",
     "register": "node src/register.js"
@@ -18,7 +18,7 @@
   "author": "Justin Beckwith <justin.beckwith@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "discord-interactions": "^2.4.1",
+    "discord-interactions": "^3.0.0",
     "itty-router": "^2.5.1"
   },
   "devDependencies": {
