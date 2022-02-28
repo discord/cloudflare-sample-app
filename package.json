@@ -1,0 +1,34 @@
+{
+  "name": "awwbot",
+  "version": "1.0.0",
+  "description": "A simple discord bot that uses intents to post pictures from r/aww",
+  "type": "module",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "wrangler dev src/server.js",
+    "ngrok": "ngrok http 8787",
+    "test": "mocha test",
+    "fix": "eslint --fix '**/*.js'",
+    "lint": "eslint '**/*.js'",
+    "register": "node src/register.js"
+  },
+  "keywords": [],
+  "author": "Justin Beckwith <justin.beckwith@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "discord-interactions": "^2.4.1",
+    "itty-router": "^2.5.1"
+  },
+  "devDependencies": {
+    "c8": "^7.11.0",
+    "eslint": "^8.9.0",
+    "eslint-config-prettier": "^8.4.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "mocha": "^9.2.1",
+    "ngrok": "^4.3.0",
+    "prettier": "^2.5.1",
+    "wrangler": "^0.0.17"
+  }
+}

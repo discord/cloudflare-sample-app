@@ -1,0 +1,21 @@
+name = "awwbot"
+type = "javascript"
+compatibility_date="2022-02-26"
+
+account_id = "c21e5aacc2d33c52c2b6589adbe56dc0"
+workers_dev = true
+
+[build.upload]
+format = "modules"
+dir = "./"
+main = "./src/server.js"
+
+[[build.upload.rules]]
+type = "ESModule"
+globs = ["**/*.js"]
+
+# [secrets]
+# DISCORD_TOKEN
+# DISCORD_PUBLIC_KEY
+# DISCORD_APPLICATION_ID
+# DISCORD_TEST_GUILD_ID
