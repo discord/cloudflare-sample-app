@@ -12,7 +12,8 @@
     "test": "c8 mocha test",
     "fix": "eslint --fix '**/*.js'",
     "lint": "eslint '**/*.js'",
-    "register": "node src/register.js"
+    "register": "node src/register.js",
+    "publish": "wrangler publish"
   },
   "keywords": [],
   "author": "Justin Beckwith <justin.beckwith@gmail.com>",
