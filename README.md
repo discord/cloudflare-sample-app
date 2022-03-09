@@ -22,6 +22,9 @@ To start, we're going to create the application and bot on the Discord Developer
 - Visit https://discord.com/developers/applications
 - Click `New Application`, and choose a name
 - Copy your Public Key and Application ID, and put them somewhere locally (we'll need these later)
+
+![awwbot-ids](https://user-images.githubusercontent.com/534619/157505267-a361a871-e06f-4e3e-876f-cf401908dd49.png)
+
 - Click on the `Bot` tab, and create a bot! Choose the same name as your app.
 - Grab the token for your bot, and keep it somewhere safe locally (I like to put these tokens in [1password](https://1password.com/))
 - Click on the `OAuth2` tab, and choose the `URL Generator`. Click the `bot` and `applications.commands` scopes.
@@ -51,17 +54,107 @@ $ wrangler secret put DISCORD_TEST_GUILD_ID
 
 > :bangbang: This depends on the beta version of the `wrangler` package, which better supports ESM on Cloudflare Workers.
 
-We're finally ready to run this code locally!
+Let's start by cloing the respository, and installing dependencies.  This requires at least v16 of Node.js:
 
 ```
 $ npm install
+```
+
+Before testing our bot, we need to register our desired slash commands.  For this bot, we'll have a `/awwww` command, and a `/invite` command.  The name and description for these are kept separate in `commands.js`:
+
+```js
+export const AWW_COMMAND = {
+  name: 'awwww',
+  description: 'Drop some cuteness on this channel.',
+};
+
+export const INVITE_COMMAND = {
+  name: 'invite',
+  description: 'Get an invite link to add the bot to your server',
+};
+```
+
+The code to register our commands lives in `register.js`.  Commands can be registered globally, making them available for all servers with the bot installed, or they can be registered to a single server.  In this example - we're just going to focus on global commands:
+
+```js
+import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
+import fetch from 'node-fetch';
+
+/**
+ * This file is meant to be run from the command line, and is not used by the
+ * application server.  It's allowed to use node.js primitives, and only needs
+ * to be run once.
+ */
+
+const token = process.env.DISCORD_TOKEN;
+const applicationId = process.env.DISCORD_APPLICATION_ID;
+
+if (!token) {
+  throw new Error('The DISCORD_TOKEN environment variable is required.');
+}
+if (!applicationId) {
+  throw new Error(
+    'The DISCORD_APPLICATION_ID environment variable is required.'
+  );
+}
+
+/**
+ * Register all commands globally.  This can take o(minutes), so wait until
+ * you're sure these are the commands you want.
+ */
+async function registerGlobalCommands() {
+  const url = `https://discord.com/api/v8/applications/${applicationId}/commands`;
+  await registerCommands(url);
+}
+
+async function registerCommands(url) {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bot ${token}`,
+    },
+    method: 'PUT',
+    body: JSON.stringify([AWW_COMMAND, INVITE_COMMAND]),
+  });
+
+  if (response.ok) {
+    console.log('Registered all commands');
+  } else {
+    console.error('Error registering commands');
+    const text = await response.text();
+    console.error(text);
+  }
+  return response;
+}
+
+await registerGlobalCommands();
+```
+
+This command needs to be run locally, once before getting started:
+```
+$ DISCORD_TOKEN=**** DISCORD_APPLICATION_ID=**** node src/register.js
+```
+
+We're finally ready to run this code locally! Let's start by running our local development server:
+
+```
 $ npm run dev
+```
+
+When a user types a slash command, Discord will send an HTTP request to a given endpoint. During local development this can be a little challenging, so we're going to use a tool called `ngrok` to create an HTTP tunnel.  
+
+```
 $ npm run ngrok
 ```
 
-```
-$ DISCORD_TOKEN=**_ DISCORD_APPLICATION_ID=_** node src/register.js
-```
+![forwardin](https://user-images.githubusercontent.com/534619/157511497-19c8cef7-c349-40ec-a9d3-4bc0147909b0.png)
+
+This is going to bounce requests off of an external endpoint, and foward them to your machine.  Copy the HTTPS link provided by the tool.  It should look something like `https://8098-24-22-245-250.ngrok.io`.  Now head back to the Discord Developer Dashboard, and update the "Interactions Endpoint Url" for your bot:
+
+![interactions-endpoint](https://user-images.githubusercontent.com/534619/157510959-6cf0327a-052a-432c-855b-c662824f15ce.png)
+
+This is the process we'll use for local testing and development. When you've published your bot to Cloudflare, you will *want to update this field to use your Cloudflare Worker url.*
+
 
 ## Code deep dive
 
