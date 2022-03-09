@@ -103,7 +103,7 @@ if (!applicationId) {
  * you're sure these are the commands you want.
  */
 async function registerGlobalCommands() {
-  const url = `https://discord.com/api/v8/applications/${applicationId}/commands`;
+  const url = `https://discord.com/api/v10/applications/${applicationId}/commands`;
   await registerCommands(url);
 }
 
@@ -141,7 +141,7 @@ We're finally ready to run this code locally! Let's start by running our local d
 $ npm run dev
 ```
 
-When a user types a slash command, Discord will send an HTTP request to a given endpoint. During local development this can be a little challenging, so we're going to use a tool called `ngrok` to create an HTTP tunnel.  
+When a user types a slash command, Discord will send an HTTP request to a given endpoint. During local development this can be a little challenging, so we're going to use a tool called `ngrok` to create an HTTP tunnel.
 
 ```
 $ npm run ngrok
