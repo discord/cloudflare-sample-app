@@ -60,6 +60,98 @@ $ npm run ngrok
 $ DISCORD_TOKEN=**_ DISCORD_APPLICATION_ID=_** node src/register.js
 ```
 
+## Code deep dive
+
+Most of the interesting code in this bot lives in `src/server.js`. Cloudflare Workers require exposing a `fetch` function, which is called as the entry point for each request. This code will largely do two things for us: validate the request is valid and actually came from Discord, and hand the request over to a router to help give us a little more control over execution.
+
+```js
+export default {
+  /**
+   * Every request to a worker will start in the `fetch` method.
+   * Verify the signature with the request, and dispatch to the router.
+   * @param {*} request A Fetch Request object
+   * @param {*} env A map of key/value pairs with env vars and secrets from the cloudflare env.
+   * @returns
+   */
+  async fetch(request, env) {
+    if (request.method === 'POST') {
+      // Using the incoming headers, verify this request actually came from discord.
+      const signature = request.headers.get('x-signature-ed25519');
+      const timestamp = request.headers.get('x-signature-timestamp');
+      const body = await request.clone().arrayBuffer();
+      const isValidRequest = verifyKey(
+        body,
+        signature,
+        timestamp,
+        env.DISCORD_PUBLIC_KEY
+      );
+      if (!isValidRequest) {
+        console.error('Invalid Request');
+        return new Response('Bad request signature.', { status: 401 });
+      }
+    }
+
+    // Dispatch the request to the appropriate route
+    return router.handle(request, env);
+  },
+};
+```
+
+All of the API calls from Discord in this example will be POSTed to `/`. From here, we will use the [`discord-interactions`](https://github.com/discord/discord-interactions-js) npm module to help us interpret the event, and to send results.
+
+```js
+/**
+ * Main route for all requests sent from Discord.  All incoming messages will
+ * include a JSON payload described here:
+ * https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object
+ */
+router.post('/', async (request, env) => {
+  const message = await request.json();
+  console.log(message);
+  if (message.type === InteractionType.PING) {
+    // The `PING` message is used during the initial webhook handshake, and is
+    // required to configure the webhook in the developer portal.
+    console.log('Handling Ping request');
+    return new JsonResponse({
+      type: InteractionResponseType.PONG,
+    });
+  }
+
+  if (message.type === InteractionType.APPLICATION_COMMAND) {
+    // Most user commands will come as `APPLICATION_COMMAND`.
+    switch (message.data.name.toLowerCase()) {
+      case AWW_COMMAND.name.toLowerCase(): {
+        console.log('handling cute request');
+        const cuteUrl = await getCuteUrl();
+        return new JsonResponse({
+          type: 4,
+          data: {
+            content: cuteUrl,
+          },
+        });
+      }
+      case INVITE_COMMAND.name.toLowerCase(): {
+        const applicationId = env.DISCORD_APPLICATION_ID;
+        const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${applicationId}&scope=applications.commands`;
+        return new JsonResponse({
+          type: 4,
+          data: {
+            content: INVITE_URL,
+            flags: 64,
+          },
+        });
+      }
+      default:
+        console.error('Unknown Command');
+        return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
+    }
+  }
+
+  console.error('Unknown Type');
+  return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
+});
+```
+
 ## Questions?
 
 Feel free to post an issue here, or reach out to [@justinbeckwith](https://twitter.com/JustinBeckwith)!
