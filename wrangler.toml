@@ -1,18 +1,18 @@
 name = "awwbot"
+main = "./src/server.js"
 type = "javascript"
 compatibility_date="2022-02-26"
 
 account_id = "c21e5aacc2d33c52c2b6589adbe56dc0"
 workers_dev = true
 
-[build.upload]
-format = "modules"
-dir = "./"
-main = "./src/server.js"
-
-[[build.upload.rules]]
+[[rules]]
 type = "ESModule"
-globs = ["**/*.js"]
+globs = [ "**/*.js" ]
+
+[env.dev]
+
+[env.production]
 
 # [secrets]
 # DISCORD_TOKEN
