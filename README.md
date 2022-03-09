@@ -2,6 +2,9 @@
 
 > Bring the cuteness of r/aww straight to your discord server. Now on Cloudflare workers.
 
+![awwbot in action](https://user-images.githubusercontent.com/534619/157503404-a6c79d1b-f0d0-40c2-93cb-164f9df7c138.gif)
+
+
 ## How it works
 
 When you create a Bot on Discord, you can receive common events from the client as [webhooks](https://discord.com/developers/docs/resources/webhook). Discord will call a pre-configured HTTPS endpoint, and send details on the event in the JSON payload.
