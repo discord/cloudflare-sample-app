@@ -29,7 +29,7 @@ To start, we're going to create the application and bot on the Discord Developer
 - Grab the token for your bot, and keep it somewhere safe locally (I like to put these tokens in [1password](https://1password.com/))
 - Click on the `OAuth2` tab, and choose the `URL Generator`. Click the `bot` and `applications.commands` scopes.
 - Click on the `Send Messages` and `Use Slash Commands` Bot Permissions
-- Copy the Generated Url, and paste it into the browser. Select the server where you'd like to develop your bot.
+- Copy the Generated URL, and paste it into the browser. Select the server where you'd like to develop your bot.
 
 ## Creating your Cloudflare worker
 
@@ -54,7 +54,7 @@ $ wrangler secret put DISCORD_TEST_GUILD_ID
 
 > :bangbang: This depends on the beta version of the `wrangler` package, which better supports ESM on Cloudflare Workers.
 
-Let's start by cloing the respository, and installing dependencies.  This requires at least v16 of Node.js:
+Let's start by cloning the repository and installing dependencies. This requires at least v16 of Node.js:
 
 ```
 $ npm install
@@ -149,11 +149,11 @@ $ npm run ngrok
 
 ![forwardin](https://user-images.githubusercontent.com/534619/157511497-19c8cef7-c349-40ec-a9d3-4bc0147909b0.png)
 
-This is going to bounce requests off of an external endpoint, and foward them to your machine.  Copy the HTTPS link provided by the tool.  It should look something like `https://8098-24-22-245-250.ngrok.io`.  Now head back to the Discord Developer Dashboard, and update the "Interactions Endpoint Url" for your bot:
+This is going to bounce requests off of an external endpoint, and foward them to your machine.  Copy the HTTPS link provided by the tool.  It should look something like `https://8098-24-22-245-250.ngrok.io`.  Now head back to the Discord Developer Dashboard, and update the "Interactions Endpoint URL" for your bot:
 
 ![interactions-endpoint](https://user-images.githubusercontent.com/534619/157510959-6cf0327a-052a-432c-855b-c662824f15ce.png)
 
-This is the process we'll use for local testing and development. When you've published your bot to Cloudflare, you will *want to update this field to use your Cloudflare Worker url.*
+This is the process we'll use for local testing and development. When you've published your bot to Cloudflare, you will *want to update this field to use your Cloudflare Worker URL.*
 
 
 ## Code deep dive
