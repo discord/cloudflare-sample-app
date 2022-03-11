@@ -4,7 +4,6 @@
 
 ![awwbot in action](https://user-images.githubusercontent.com/534619/157503404-a6c79d1b-f0d0-40c2-93cb-164f9df7c138.gif)
 
-
 ## How it works
 
 When you create a Bot on Discord, you can receive common events from the client as [webhooks](https://discord.com/developers/docs/resources/webhook). Discord will call a pre-configured HTTPS endpoint, and send details on the event in the JSON payload.
@@ -60,7 +59,7 @@ Let's start by cloning the repository and installing dependencies. This requires
 $ npm install
 ```
 
-Before testing our bot, we need to register our desired slash commands.  For this bot, we'll have a `/awwww` command, and a `/invite` command.  The name and description for these are kept separate in `commands.js`:
+Before testing our bot, we need to register our desired slash commands. For this bot, we'll have a `/awwww` command, and a `/invite` command. The name and description for these are kept separate in `commands.js`:
 
 ```js
 export const AWW_COMMAND = {
@@ -74,7 +73,7 @@ export const INVITE_COMMAND = {
 };
 ```
 
-The code to register our commands lives in `register.js`.  Commands can be registered globally, making them available for all servers with the bot installed, or they can be registered to a single server.  In this example - we're just going to focus on global commands:
+The code to register our commands lives in `register.js`. Commands can be registered globally, making them available for all servers with the bot installed, or they can be registered to a single server. In this example - we're just going to focus on global commands:
 
 ```js
 import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
@@ -131,6 +130,7 @@ await registerGlobalCommands();
 ```
 
 This command needs to be run locally, once before getting started:
+
 ```
 $ DISCORD_TOKEN=**** DISCORD_APPLICATION_ID=**** node src/register.js
 ```
@@ -149,12 +149,32 @@ $ npm run ngrok
 
 ![forwardin](https://user-images.githubusercontent.com/534619/157511497-19c8cef7-c349-40ec-a9d3-4bc0147909b0.png)
 
-This is going to bounce requests off of an external endpoint, and foward them to your machine.  Copy the HTTPS link provided by the tool.  It should look something like `https://8098-24-22-245-250.ngrok.io`.  Now head back to the Discord Developer Dashboard, and update the "Interactions Endpoint URL" for your bot:
+This is going to bounce requests off of an external endpoint, and foward them to your machine. Copy the HTTPS link provided by the tool. It should look something like `https://8098-24-22-245-250.ngrok.io`. Now head back to the Discord Developer Dashboard, and update the "Interactions Endpoint URL" for your bot:
 
 ![interactions-endpoint](https://user-images.githubusercontent.com/534619/157510959-6cf0327a-052a-432c-855b-c662824f15ce.png)
 
-This is the process we'll use for local testing and development. When you've published your bot to Cloudflare, you will *want to update this field to use your Cloudflare Worker URL.*
+This is the process we'll use for local testing and development. When you've published your bot to Cloudflare, you will _want to update this field to use your Cloudflare Worker URL._
 
+## Deployment
+
+This repository is set up to automatically deploy to Cloudflare Workers when new changes land on the `main` branch. To deploy manually, run `npm run publish`, which uses the `wrangler publish` command under the hood. Publishing via a GitHub Action requires obtaining an [API Token and your Account ID from Cloudflare](https://developers.cloudflare.com/workers/cli-wrangler/authentication/). These are stored [as secrets in the GitHub repository](https://docs.github.com/en/actions/security-guides/encrypted-secrets), making them available to GitHub Actions. The following configuration in `.github/workflows/ci.yaml` demonstrates how to tie it all together:
+
+```yaml
+release:
+  if: github.ref == 'refs/heads/main'
+  runs-on: ubuntu-latest
+  needs: [test, lint]
+  steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: 16
+    - run: npm install
+    - run: npm run publish
+      env:
+        CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+```
 
 ## Code deep dive
 
