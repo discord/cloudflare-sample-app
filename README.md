@@ -1,8 +1,29 @@
-# awwbot
+# Cloudflare worker example app
 
-> Bring the cuteness of r/aww straight to your discord server. Now on Cloudflare workers.
+awwbot is an example app that brings the cuteness of `r/aww` straight to your Discord server, hosted on Cloudflare workers. The tutorial for building awwbot is [in the developer documentation](TODO)
 
 ![awwbot in action](https://user-images.githubusercontent.com/534619/157503404-a6c79d1b-f0d0-40c2-93cb-164f9df7c138.gif)
+
+## Project structure
+Below is a basic overview of the project structure:
+
+```
+├── src
+│   ├── commands.js -> JSON payloads for commands
+│   ├── reddit.js   -> Interactions with the Reddit API
+│   ├── register.js -> Sets up commands with the Discord API
+│   ├── server.js   -> Discord app logic and routing
+├── test
+|   ├── test.js     -> Tests for app
+├── wrangler.toml   -> Configuration for Cloudflare workers
+├── package.json
+├── README.md
+├── renovate.json   -> Configuration for repo automation
+├── .eslintrc.json
+├── .prettierignore
+├── .prettierrc.json
+└── .gitignore
+```
 
 ## How it works
 
