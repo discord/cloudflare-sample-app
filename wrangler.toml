@@ -1,9 +1,9 @@
-name = "awwbot"
-main = "./src/server.js"
+name = "nceahelpworker"
 type = "javascript"
+main = "./src/server.js"
 compatibility_date="2022-02-26"
 
-account_id = "c21e5aacc2d33c52c2b6589adbe56dc0"
+account_id = "4ed1f8e12cda519236361f09dd8956cf"
 workers_dev = true
 
 [[rules]]

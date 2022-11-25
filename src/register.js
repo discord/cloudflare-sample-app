@@ -1,4 +1,4 @@
-import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
+import { REVIVE_COMMAND, TEST_COMMAND } from './commands.js';
 import fetch from 'node-fetch';
 
 /**
@@ -64,7 +64,7 @@ async function registerCommands(url) {
       Authorization: `Bot ${token}`,
     },
     method: 'PUT',
-    body: JSON.stringify([AWW_COMMAND, INVITE_COMMAND]),
+    body: JSON.stringify([REVIVE_COMMAND, TEST_COMMAND]),
   });
 
   if (response.ok) {
@@ -77,5 +77,5 @@ async function registerCommands(url) {
   return response;
 }
 
-await registerGlobalCommands();
+registerGlobalCommands();
 // await registerGuildCommands();

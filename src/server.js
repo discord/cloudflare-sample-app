@@ -8,8 +8,7 @@ import {
   InteractionType,
   verifyKey,
 } from 'discord-interactions';
-import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
-import { getCuteUrl } from './reddit.js';
+import { REVIVE_COMMAND, TEST_COMMAND } from './commands.js';
 
 class JsonResponse extends Response {
   constructor(body, init) {
@@ -37,7 +36,7 @@ router.get('/', (request, env) => {
  * include a JSON payload described here:
  * https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object
  */
-router.post('/', async (request, env) => {
+router.post('/', async (request) => {
   const message = await request.json();
   console.log(message);
   if (message.type === InteractionType.PING) {
@@ -52,23 +51,30 @@ router.post('/', async (request, env) => {
   if (message.type === InteractionType.APPLICATION_COMMAND) {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (message.data.name.toLowerCase()) {
-      case AWW_COMMAND.name.toLowerCase(): {
-        console.log('handling cute request');
-        const cuteUrl = await getCuteUrl();
+      case REVIVE_COMMAND.name.toLowerCase(): {
+        if ('909724765026148402' in message.member.roles) {
+          console.log('handling revive request');
+          return new JsonResponse({
+            type: 4,
+            data: {
+              content: 'abcdef <@&984350646104915998>',
+            },
+          });
+        }
         return new JsonResponse({
           type: 4,
           data: {
-            content: cuteUrl,
+            content:
+              'You do not have the correct role necessary to perform this     action. If you believe this is an error, please contact CyberFlame United#0001 (<@218977195375329281>.',
+            flags: 64,
           },
         });
       }
-      case INVITE_COMMAND.name.toLowerCase(): {
-        const applicationId = env.DISCORD_APPLICATION_ID;
-        const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${applicationId}&scope=applications.commands`;
+      case TEST_COMMAND.name.toLowerCase(): {
         return new JsonResponse({
           type: 4,
           data: {
-            content: INVITE_URL,
+            content: 'Test successful :)',
             flags: 64,
           },
         });

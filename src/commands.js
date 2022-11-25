@@ -3,12 +3,13 @@
  * and registration.
  */
 
-export const AWW_COMMAND = {
-  name: 'awwww',
-  description: 'Drop some cuteness on this channel.',
+export const REVIVE_COMMAND = {
+  name: 'revive',
+  description:
+    'Revival ping command, executable by members of the Promotions Team',
 };
 
-export const INVITE_COMMAND = {
-  name: 'invite',
-  description: 'Get an invite link to add the bot to your server',
+export const TEST_COMMAND = {
+  name: 'test',
+  description: 'This command serves no purpose.',
 };
