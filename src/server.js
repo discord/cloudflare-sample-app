@@ -36,7 +36,8 @@ router.get('/', (request, env) => {
  * include a JSON payload described here:
  * https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object
  */
-router.post('/', async (request) => {
+// eslint-disable-next-line no-unused-vars
+router.post('/', async (request, env) => {
   const message = await request.json();
   console.log(message);
   if (message.type === InteractionType.PING) {

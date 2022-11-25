@@ -1,14 +1,14 @@
 name = "nceahelpworker"
-type = "javascript"
-main = "./src/server.js"
-compatibility_date="2022-02-26"
+main = "src/server.js"
+compatibility_date="2022-11-25"
 
 account_id = "4ed1f8e12cda519236361f09dd8956cf"
 workers_dev = true
 
-[[rules]]
-type = "ESModule"
-globs = [ "**/*.js" ]
+rules = [
+    { type = "ESModule", globs = ["**/*.js"] }
+]
+
 
 [env.dev]
 

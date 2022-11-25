@@ -66,8 +66,9 @@ router.get('/', function (request, env) {
  * include a JSON payload described here:
  * https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object
  */
+// eslint-disable-next-line no-unused-vars
 
-router.post('/', function _callee(request) {
+router.post('/', function _callee(request, env) {
   var message;
   return regeneratorRuntime.async(function _callee$(_context) {
     while (1) {
