@@ -29,7 +29,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "mocha": "^9.2.1",
     "node-fetch": "^3.2.2",
-    "prettier": "^2.5.1",
-    "wrangler": "^0.0.18"
+    "prettier": "^2.5.1"
   }
 }
