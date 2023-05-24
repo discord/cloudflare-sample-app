@@ -10,6 +10,7 @@ import {
 } from 'discord-interactions';
 import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
 import { getCuteUrl } from './reddit.js';
+import { InteractionResponseFlags } from 'discord-interactions';
 
 class JsonResponse extends Response {
   constructor(body, init) {
@@ -38,9 +39,14 @@ router.get('/', (request, env) => {
  * https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object
  */
 router.post('/', async (request, env) => {
-  const message = await request.json();
-  console.log(message);
-  if (message.type === InteractionType.PING) {
+  const { isValid, interaction } = await verifyDiscordRequest(request, env);
+  if (!isValid || !interaction) {
+    return new Response('Bad request signature.', { status: 401 });
+  }
+
+  console.log(JSON.stringify(interaction, null, 2));
+
+  if (interaction.type === InteractionType.PING) {
     // The `PING` message is used during the initial webhook handshake, and is
     // required to configure the webhook in the developer portal.
     console.log('Handling Ping request');
@@ -49,14 +55,14 @@ router.post('/', async (request, env) => {
     });
   }
 
-  if (message.type === InteractionType.APPLICATION_COMMAND) {
+  if (interaction.type === InteractionType.APPLICATION_COMMAND) {
     // Most user commands will come as `APPLICATION_COMMAND`.
-    switch (message.data.name.toLowerCase()) {
+    switch (interaction.data.name.toLowerCase()) {
       case AWW_COMMAND.name.toLowerCase(): {
         console.log('handling cute request');
         const cuteUrl = await getCuteUrl();
         return new JsonResponse({
-          type: 4,
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             content: cuteUrl,
           },
@@ -66,10 +72,10 @@ router.post('/', async (request, env) => {
         const applicationId = env.DISCORD_APPLICATION_ID;
         const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${applicationId}&scope=applications.commands`;
         return new JsonResponse({
-          type: 4,
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             content: INVITE_URL,
-            flags: 64,
+            flags: InteractionResponseFlags.EPHEMERAL,
           },
         });
       }
@@ -84,6 +90,21 @@ router.post('/', async (request, env) => {
 });
 router.all('*', () => new Response('Not Found.', { status: 404 }));
 
+async function verifyDiscordRequest(request, env) {
+  const signature = request.headers.get('x-signature-ed25519');
+  const timestamp = request.headers.get('x-signature-timestamp');
+  const body = await request.text();
+  const isValidRequest =
+    signature &&
+    timestamp &&
+    verifyKey(body, signature, timestamp, env.DISCORD_PUBLIC_KEY);
+  if (!isValidRequest) {
+    return { isValid: false };
+  }
+
+  return { interaction: JSON.parse(body), isValid: true };
+}
+
 export default {
   /**
    * Every request to a worker will start in the `fetch` method.
@@ -93,25 +114,6 @@ export default {
    * @returns
    */
   async fetch(request, env) {
-    if (request.method === 'POST') {
-      // Using the incoming headers, verify this request actually came from discord.
-      const signature = request.headers.get('x-signature-ed25519');
-      const timestamp = request.headers.get('x-signature-timestamp');
-      console.log(signature, timestamp, env.DISCORD_PUBLIC_KEY);
-      const body = await request.clone().arrayBuffer();
-      const isValidRequest = verifyKey(
-        body,
-        signature,
-        timestamp,
-        env.DISCORD_PUBLIC_KEY
-      );
-      if (!isValidRequest) {
-        console.error('Invalid Request');
-        return new Response('Bad request signature.', { status: 401 });
-      }
-    }
-
-    // Dispatch the request to the appropriate route
     return router.handle(request, env);
   },
 };
