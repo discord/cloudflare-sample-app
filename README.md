@@ -75,7 +75,7 @@ npm install
 
 Rename `example.dev.vars` to `.dev.vars`, and make sure to set each variable.
 
-**Make sure this file does not get checked into git**.
+**`.dev.vars` contains sensitive data so make sure it does not get checked into git**.
 
 ### Register commands
 
