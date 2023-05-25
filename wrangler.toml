@@ -1,21 +1,8 @@
 name = "awwbot"
 main = "./src/server.js"
-type = "javascript"
-compatibility_date="2022-02-26"
-
-account_id = "c21e5aacc2d33c52c2b6589adbe56dc0"
-workers_dev = true
-
-[[rules]]
-type = "ESModule"
-globs = [ "**/*.js" ]
-
-[env.dev]
-
-[env.production]
+compatibility_date="2023-05-18"
 
 # [secrets]
 # DISCORD_TOKEN
 # DISCORD_PUBLIC_KEY
 # DISCORD_APPLICATION_ID
-# DISCORD_TEST_GUILD_ID

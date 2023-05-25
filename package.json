@@ -13,24 +13,24 @@
     "fix": "eslint --fix '**/*.js'",
     "lint": "eslint '**/*.js'",
     "register": "node src/register.js",
-    "publish": "wrangler publish"
+    "publish": "wrangler deploy"
   },
   "keywords": [],
   "author": "Justin Beckwith <justin.beckwith@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "discord-interactions": "^3.0.0",
-    "itty-router": "^2.5.1"
+    "discord-interactions": "^3.4.0",
+    "itty-router": "^3.0.12"
   },
   "devDependencies": {
-    "c8": "^7.11.0",
-    "eslint": "^8.9.0",
-    "eslint-config-prettier": "^8.4.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "mocha": "^9.2.1",
-    "ngrok": "^4.3.0",
-    "node-fetch": "^3.2.2",
-    "prettier": "^2.5.1",
-    "wrangler": "^0.0.18"
+    "c8": "^7.13.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.41.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "mocha": "^10.2.0",
+    "ngrok": "^5.0.0-beta.2",
+    "prettier": "^2.8.8",
+    "wrangler": "^3.0.1"
   }
 }
