@@ -49,8 +49,8 @@ if (response.ok) {
     if (error) {
       errorText = `${errorText} \n\n ${error}`;
     }
-  } catch {
-    // ignore
+  } catch (err) {
+    console.err('Error reading body from request:', err);
   }
   console.error(errorText);
 }
