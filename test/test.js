@@ -5,6 +5,7 @@ import {
   InteractionType,
   InteractionResponseFlags,
 } from 'discord-interactions';
+import { AWW_COMMAND, INVITE_COMMAND } from '../src/commands.js';
 import sinon from 'sinon';
 import server from '../src/server.js';
 import reddit from '../src/reddit.js';
@@ -65,7 +66,7 @@ describe('Server', () => {
       const interaction = {
         type: InteractionType.APPLICATION_COMMAND,
         data: {
-          name: 'awwww',
+          name: AWW_COMMAND.name,
         },
       };
 
@@ -94,7 +95,7 @@ describe('Server', () => {
       const interaction = {
         type: InteractionType.APPLICATION_COMMAND,
         data: {
-          name: 'invite',
+          name: INVITE_COMMAND.name,
         },
       };
 
