@@ -1,6 +1,13 @@
 import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import { describe, it, beforeEach, afterEach } from 'mocha';
+import {
+  InteractionResponseType,
+  InteractionType,
+  InteractionResponseFlags,
+} from 'discord-interactions';
+import sinon from 'sinon';
 import server from '../src/server.js';
+import reddit from '../src/reddit.js';
 
 describe('Server', () => {
   describe('GET /', () => {
@@ -15,6 +22,129 @@ describe('Server', () => {
       const body = await response.text();
 
       expect(body).to.equal('👋 123456789');
+    });
+  });
+
+  describe('POST /', () => {
+    let verifyDiscordRequestStub;
+    let getCuteUrlStub;
+
+    beforeEach(() => {
+      verifyDiscordRequestStub = sinon.stub(server, 'verifyDiscordRequest');
+      getCuteUrlStub = sinon.stub(reddit, 'getCuteUrl');
+    });
+
+    afterEach(() => {
+      verifyDiscordRequestStub.restore();
+      getCuteUrlStub.restore();
+    });
+
+    it('should handle a PING interaction', async () => {
+      const interaction = {
+        type: InteractionType.PING,
+      };
+
+      const request = {
+        method: 'POST',
+        url: new URL('/', 'http://discordo.example'),
+      };
+
+      const env = {};
+
+      verifyDiscordRequestStub.resolves({
+        isValid: true,
+        interaction: interaction,
+      });
+
+      const response = await server.fetch(request, env);
+      const body = await response.json();
+      expect(body.type).to.equal(InteractionResponseType.PONG);
+    });
+
+    it('should handle an AWW command interaction', async () => {
+      const interaction = {
+        type: InteractionType.APPLICATION_COMMAND,
+        data: {
+          name: 'awwww',
+        },
+      };
+
+      const request = {
+        method: 'POST',
+        url: new URL('/', 'http://discordo.example'),
+      };
+
+      const env = {};
+
+      verifyDiscordRequestStub.resolves({
+        isValid: true,
+        interaction: interaction,
+      });
+
+      getCuteUrlStub.resolves('https://example.com/cute-image.jpg');
+
+      const response = await server.fetch(request, env);
+      const body = await response.json();
+      expect(body.type).to.equal(
+        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE
+      );
+    });
+
+    it('should handle an invite command interaction', async () => {
+      const interaction = {
+        type: InteractionType.APPLICATION_COMMAND,
+        data: {
+          name: 'invite',
+        },
+      };
+
+      const request = {
+        method: 'POST',
+        url: new URL('/', 'http://discordo.example'),
+      };
+
+      const env = {
+        DISCORD_APPLICATION_ID: '123456789',
+      };
+
+      verifyDiscordRequestStub.resolves({
+        isValid: true,
+        interaction: interaction,
+      });
+
+      const response = await server.fetch(request, env);
+      const body = await response.json();
+      expect(body.type).to.equal(
+        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE
+      );
+      expect(body.data.content).to.include(
+        'https://discord.com/oauth2/authorize?client_id=123456789&scope=applications.commands'
+      );
+      expect(body.data.flags).to.equal(InteractionResponseFlags.EPHEMERAL);
+    });
+
+    it('should handle an unknown command interaction', async () => {
+      const interaction = {
+        type: InteractionType.APPLICATION_COMMAND,
+        data: {
+          name: 'unknown',
+        },
+      };
+
+      const request = {
+        method: 'POST',
+        url: new URL('/', 'http://discordo.example'),
+      };
+
+      verifyDiscordRequestStub.resolves({
+        isValid: true,
+        interaction: interaction,
+      });
+
+      const response = await server.fetch(request, {});
+      const body = await response.json();
+      expect(response.status).to.equal(400);
+      expect(body.error).to.equal('Unknown Type');
     });
   });
 

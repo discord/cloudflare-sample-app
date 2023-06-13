@@ -4,7 +4,7 @@
  * and return a random result.
  * @returns The url of an image or video which is cute.
  */
-export async function getCuteUrl() {
+async function getCuteUrl() {
   const response = await fetch('https://www.reddit.com/r/aww/hot.json', {
     headers: {
       'User-Agent': 'justinbeckwith:awwbot:v1.0.0 (by /u/justinblat)',
@@ -27,3 +27,5 @@ export async function getCuteUrl() {
   const randomPost = posts[randomIndex];
   return randomPost;
 }
+
+export default { getCuteUrl: getCuteUrl };
