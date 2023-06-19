@@ -23,7 +23,7 @@
     "itty-router": "^3.0.12"
   },
   "devDependencies": {
-    "c8": "^7.13.0",
+    "c8": "^8.0.0",
     "dotenv": "^16.0.3",
     "eslint": "^8.41.0",
     "eslint-config-prettier": "^8.8.0",
