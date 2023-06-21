@@ -50,7 +50,7 @@ if (response.ok) {
       errorText = `${errorText} \n\n ${error}`;
     }
   } catch (err) {
-    console.err('Error reading body from request:', err);
+    console.error('Error reading body from request:', err);
   }
   console.error(errorText);
 }
