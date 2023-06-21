@@ -39,17 +39,17 @@ router.get('/', (request, env) => {
  * https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object
  */
 router.post('/', async (request, env) => {
-  const { isValid, interaction } = await verifyDiscordRequest(request, env);
+  const { isValid, interaction } = await server.verifyDiscordRequest(
+    request,
+    env
+  );
   if (!isValid || !interaction) {
     return new Response('Bad request signature.', { status: 401 });
   }
 
-  console.log(JSON.stringify(interaction, null, 2));
-
   if (interaction.type === InteractionType.PING) {
     // The `PING` message is used during the initial webhook handshake, and is
     // required to configure the webhook in the developer portal.
-    console.log('Handling Ping request');
     return new JsonResponse({
       type: InteractionResponseType.PONG,
     });
@@ -59,7 +59,6 @@ router.post('/', async (request, env) => {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (interaction.data.name.toLowerCase()) {
       case AWW_COMMAND.name.toLowerCase(): {
-        console.log('handling cute request');
         const cuteUrl = await getCuteUrl();
         return new JsonResponse({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -80,7 +79,6 @@ router.post('/', async (request, env) => {
         });
       }
       default:
-        console.error('Unknown Command');
         return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
     }
   }
@@ -105,15 +103,11 @@ async function verifyDiscordRequest(request, env) {
   return { interaction: JSON.parse(body), isValid: true };
 }
 
-export default {
-  /**
-   * Every request to a worker will start in the `fetch` method.
-   * Verify the signature with the request, and dispatch to the router.
-   * @param {*} request A Fetch Request object
-   * @param {*} env A map of key/value pairs with env vars and secrets from the cloudflare env.
-   * @returns
-   */
-  async fetch(request, env) {
+const server = {
+  verifyDiscordRequest: verifyDiscordRequest,
+  fetch: async function (request, env) {
     return router.handle(request, env);
   },
 };
+
+export default server;
