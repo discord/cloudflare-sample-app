@@ -8,7 +8,6 @@ import {
 import { AWW_COMMAND, INVITE_COMMAND } from '../src/commands.js';
 import sinon from 'sinon';
 import server from '../src/server.js';
-import reddit from '../src/reddit.js';
 
 describe('Server', () => {
   describe('GET /', () => {
@@ -28,16 +27,13 @@ describe('Server', () => {
 
   describe('POST /', () => {
     let verifyDiscordRequestStub;
-    let getCuteUrlStub;
 
     beforeEach(() => {
       verifyDiscordRequestStub = sinon.stub(server, 'verifyDiscordRequest');
-      getCuteUrlStub = sinon.stub(reddit, 'getCuteUrl');
     });
 
     afterEach(() => {
       verifyDiscordRequestStub.restore();
-      getCuteUrlStub.restore();
     });
 
     it('should handle a PING interaction', async () => {
@@ -81,8 +77,6 @@ describe('Server', () => {
         isValid: true,
         interaction: interaction,
       });
-
-      getCuteUrlStub.resolves('https://example.com/cute-image.jpg');
 
       const response = await server.fetch(request, env);
       const body = await response.json();

@@ -9,7 +9,7 @@ import {
   verifyKey,
 } from 'discord-interactions';
 import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
-import reddit from './reddit.js';
+import { getCuteUrl } from './reddit.js';
 import { InteractionResponseFlags } from 'discord-interactions';
 
 class JsonResponse extends Response {
@@ -59,7 +59,7 @@ router.post('/', async (request, env) => {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (interaction.data.name.toLowerCase()) {
       case AWW_COMMAND.name.toLowerCase(): {
-        const cuteUrl = await reddit.getCuteUrl();
+        const cuteUrl = await getCuteUrl();
         return new JsonResponse({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
