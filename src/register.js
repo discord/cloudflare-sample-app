@@ -1,5 +1,6 @@
 import { REVIVE_COMMAND, TEST_COMMAND } from './commands.js';
-import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+import process from 'node:process';
 
 /**
  * This file is meant to be run from the command line, and is not used by the
@@ -7,11 +8,10 @@ import fetch from 'node-fetch';
  * to be run once.
  */
 
-/* eslint-disable no-undef */
+dotenv.config({ path: '.dev.vars' });
 
 const token = process.env.DISCORD_TOKEN;
 const applicationId = process.env.DISCORD_APPLICATION_ID;
-const testGuildId = process.env.DISCORD_TEST_GUILD_ID;
 
 if (!token) {
   throw new Error('The DISCORD_TOKEN environment variable is required.');
@@ -23,59 +23,34 @@ if (!applicationId) {
 }
 
 /**
- * Register all commands with a specific guild/server. Useful during initial
- * development and testing.
- */
-// eslint-disable-next-line no-unused-vars
-async function registerGuildCommands() {
-  if (!testGuildId) {
-    throw new Error(
-      'The DISCORD_TEST_GUILD_ID environment variable is required.'
-    );
-  }
-  const url = `https://discord.com/api/v10/applications/${applicationId}/guilds/${testGuildId}/commands`;
-  const res = await registerCommands(url);
-  const json = await res.json();
-  console.log(json);
-  json.forEach(async (cmd) => {
-    const response = await fetch(
-      `https://discord.com/api/v10/applications/${applicationId}/guilds/${testGuildId}/commands/${cmd.id}`
-    );
-    if (!response.ok) {
-      console.error(`Problem removing command ${cmd.id}`);
-    }
-  });
-}
-
-/**
  * Register all commands globally.  This can take o(minutes), so wait until
  * you're sure these are the commands you want.
  */
-// eslint-disable-next-line no-unused-vars
-async function registerGlobalCommands() {
-  const url = `https://discord.com/api/v10/applications/${applicationId}/commands`;
-  await registerCommands(url);
-}
+const url = `https://discord.com/api/v10/applications/${applicationId}/commands`;
 
-async function registerCommands(url) {
-  const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bot ${token}`,
-    },
-    method: 'PUT',
-    body: JSON.stringify([REVIVE_COMMAND, TEST_COMMAND]),
-  });
+const response = await fetch(url, {
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bot ${token}`,
+  },
+  method: 'PUT',
+  body: JSON.stringify([REVIVE_COMMAND, TEST_COMMAND]),
+});
 
-  if (response.ok) {
-    console.log('Registered all commands');
-  } else {
-    console.error('Error registering commands');
-    const text = await response.text();
-    console.error(text);
+if (response.ok) {
+  console.log('Registered all commands');
+  const data = await response.json();
+  console.log(JSON.stringify(data, null, 2));
+} else {
+  console.error('Error registering commands');
+  let errorText = `Error registering commands \n ${response.url}: ${response.status} ${response.statusText}`;
+  try {
+    const error = await response.text();
+    if (error) {
+      errorText = `${errorText} \n\n ${error}`;
+    }
+  } catch (err) {
+    console.error('Error reading body from request:', err);
   }
-  return response;
+  console.error(errorText);
 }
-
-registerGlobalCommands();
-// await registerGuildCommands();

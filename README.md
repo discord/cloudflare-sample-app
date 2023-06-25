@@ -30,7 +30,6 @@ Below is a basic overview of the project structure:
 ├── wrangler.toml             -> Configuration for Cloudflare workers
 ├── package.json
 ├── README.md
-├── renovate.json             -> Configuration for repo automation
 ├── .eslintrc.json
 ├── .prettierignore
 ├── .prettierrc.json
@@ -40,6 +39,7 @@ Below is a basic overview of the project structure:
 ## Configuring project
 
 Before starting, you'll need a [Discord app](https://discord.com/developers/applications) with the following permissions:
+
 - `bot` with the `Send Messages` and `Use Slash Command` permissions
 - `applications.commands` scope
 
@@ -47,47 +47,42 @@ Before starting, you'll need a [Discord app](https://discord.com/developers/appl
 
 ## Creating your Cloudflare worker
 
-Next, you'll need to create a Cloudflare Workers
+Next, you'll need to create a Cloudflare Worker.
+
 - Visit the [Cloudflare dashboard](https://dash.cloudflare.com/)
 - Click on the `Workers` tab, and create a new service using the same name as your Discord bot
-- Make sure to [install the Wrangler CLI](https://developers.cloudflare.com/workers/cli-wrangler/install-update/) and set it up.
-
-### Storing secrets
-
-> 💡 More information about generating and fetching credentials can be found [in the tutorial](https://discord.com/developers/docs/tutorials/hosting-on-cloudflare-workers#storing-secrets)
-
-The production service needs access to credentials from your app:
-
-```
-$ wrangler secret put DISCORD_TOKEN
-$ wrangler secret put DISCORD_PUBLIC_KEY
-$ wrangler secret put DISCORD_APPLICATION_ID
-$ wrangler secret put DISCORD_TEST_GUILD_ID
-```
 
 ## Running locally
 
-> :bangbang: This depends on the beta version of the `wrangler` package, which better supports ESM on Cloudflare Workers.
-
 First clone the project:
+
 ```
 git clone https://github.com/discord/cloudflare-sample-app.git
 ```
 
 Then navigate to its directory and install dependencies:
+
 ```
 cd cloudflare-sample-app
 npm install
 ```
 
-> ⚙️ The dependencies in this project require at least v16 of [Node.js](https://nodejs.org/en/)
+> ⚙️ The dependencies in this project require at least v18 of [Node.js](https://nodejs.org/en/)
+
+### Local configuration
+
+> 💡 More information about generating and fetching credentials can be found [in the tutorial](https://discord.com/developers/docs/tutorials/hosting-on-cloudflare-workers#storing-secrets)
+
+Rename `example.dev.vars` to `.dev.vars`, and make sure to set each variable.
+
+**`.dev.vars` contains sensitive data so make sure it does not get checked into git**.
 
 ### Register commands
 
 The following command only needs to be run once:
 
 ```
-$ DISCORD_TOKEN=<your-token> DISCORD_APPLICATION_ID=<your-app-id> node src/register.js
+$ npm run register
 ```
 
 ### Run app
@@ -124,15 +119,25 @@ release:
   runs-on: ubuntu-latest
   needs: [test, lint]
   steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
       with:
-        node-version: 16
+        node-version: 18
     - run: npm install
     - run: npm run publish
       env:
         CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+```
+
+### Storing secrets
+
+The credentials in `.dev.vars` are only applied locally. The production service needs access to credentials from your app:
+
+```
+$ wrangler secret put DISCORD_TOKEN
+$ wrangler secret put DISCORD_PUBLIC_KEY
+$ wrangler secret put DISCORD_APPLICATION_ID
 ```
 
 ## Questions?

@@ -9,6 +9,7 @@ import {
   verifyKey,
 } from 'discord-interactions';
 import { REVIVE_COMMAND, TEST_COMMAND } from './commands.js';
+import { InteractionResponseFlags } from 'discord-interactions';
 
 class JsonResponse extends Response {
   constructor(body, init) {
@@ -38,20 +39,25 @@ router.get('/', (request, env) => {
  */
 // eslint-disable-next-line no-unused-vars
 router.post('/', async (request, env) => {
-  const message = await request.json();
-  console.log(message);
-  if (message.type === InteractionType.PING) {
+  const { isValid, interaction } = await server.verifyDiscordRequest(
+    request,
+    env
+  );
+  if (!isValid || !interaction) {
+    return new Response('Bad request signature.', { status: 401 });
+  }
+
+  if (interaction.type === InteractionType.PING) {
     // The `PING` message is used during the initial webhook handshake, and is
     // required to configure the webhook in the developer portal.
-    console.log('Handling Ping request');
     return new JsonResponse({
       type: InteractionResponseType.PONG,
     });
   }
 
-  if (message.type === InteractionType.APPLICATION_COMMAND) {
+  if (interaction.type === InteractionType.APPLICATION_COMMAND) {
     // Most user commands will come as `APPLICATION_COMMAND`.
-    switch (message.data.name.toLowerCase()) {
+    switch (interaction.data.name.toLowerCase()) {
       case REVIVE_COMMAND.name.toLowerCase(): {
         if (message.member.roles.includes('909724765026148402')) {
           console.log('handling revive request');
@@ -67,7 +73,7 @@ router.post('/', async (request, env) => {
           });
         }
         return new JsonResponse({
-          type: 4,
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             content:
               'You do not have the correct role necessary to perform this action. If you believe this is an error, please contact CyberFlame United#0001 (<@218977195375329281>).',
@@ -77,15 +83,14 @@ router.post('/', async (request, env) => {
       }
       case TEST_COMMAND.name.toLowerCase(): {
         return new JsonResponse({
-          type: 4,
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             content: 'Test successful :)',
-            flags: 64,
+            flags: InteractionResponseFlags.EPHEMERAL,
           },
         });
       }
       default:
-        console.error('Unknown Command');
         return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
     }
   }
@@ -95,34 +100,26 @@ router.post('/', async (request, env) => {
 });
 router.all('*', () => new Response('Not Found.', { status: 404 }));
 
-export default {
-  /**
-   * Every request to a worker will start in the `fetch` method.
-   * Verify the signature with the request, and dispatch to the router.
-   * @param {*} request A Fetch Request object
-   * @param {*} env A map of key/value pairs with env vars and secrets from the cloudflare env.
-   * @returns
-   */
-  async fetch(request, env) {
-    if (request.method === 'POST') {
-      // Using the incoming headers, verify this request actually came from discord.
-      const signature = request.headers.get('x-signature-ed25519');
-      const timestamp = request.headers.get('x-signature-timestamp');
-      console.log(signature, timestamp, env.DISCORD_PUBLIC_KEY);
-      const body = await request.clone().arrayBuffer();
-      const isValidRequest = verifyKey(
-        body,
-        signature,
-        timestamp,
-        env.DISCORD_PUBLIC_KEY
-      );
-      if (!isValidRequest) {
-        console.error('Invalid Request');
-        return new Response('Bad request signature.', { status: 401 });
-      }
-    }
+async function verifyDiscordRequest(request, env) {
+  const signature = request.headers.get('x-signature-ed25519');
+  const timestamp = request.headers.get('x-signature-timestamp');
+  const body = await request.text();
+  const isValidRequest =
+    signature &&
+    timestamp &&
+    verifyKey(body, signature, timestamp, env.DISCORD_PUBLIC_KEY);
+  if (!isValidRequest) {
+    return { isValid: false };
+  }
 
-    // Dispatch the request to the appropriate route
+  return { interaction: JSON.parse(body), isValid: true };
+}
+
+const server = {
+  verifyDiscordRequest: verifyDiscordRequest,
+  fetch: async function (request, env) {
     return router.handle(request, env);
   },
 };
+
+export default server;

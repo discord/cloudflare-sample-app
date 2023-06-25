@@ -13,22 +13,26 @@
     "fix": "eslint --fix '**/*.js'",
     "lint": "eslint '**/*.js'",
     "register": "node src/register.js",
-    "publish": "wrangler publish"
+    "publish": "wrangler deploy"
   },
   "keywords": [],
   "author": "Aaron Lowe <cyberflameu@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "discord-interactions": "^3.2.0",
-    "itty-router": "^2.6.6"
+    "discord-interactions": "^3.4.0",
+    "itty-router": "^4.0.13"
   },
   "devDependencies": {
-    "c8": "^7.11.0",
-    "eslint": "^8.9.0",
-    "eslint-config-prettier": "^8.4.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "mocha": "^9.2.1",
-    "node-fetch": "^3.2.2",
-    "prettier": "^2.5.1"
+    "c8": "^8.0.0",
+    "chai": "^4.3.7",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.41.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "mocha": "^10.2.0",
+    "ngrok": "^5.0.0-beta.2",
+    "prettier": "^2.8.8",
+    "sinon": "^15.1.0",
+    "wrangler": "^3.0.1"
   }
 }

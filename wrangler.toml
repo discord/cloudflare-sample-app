@@ -1,21 +1,8 @@
 name = "nceahelpworker"
-main = "src/server.js"
-compatibility_date="2022-11-25"
-
-account_id = "4ed1f8e12cda519236361f09dd8956cf"
-workers_dev = true
-
-rules = [
-    { type = "ESModule", globs = ["**/*.js"] }
-]
-
-
-[env.dev]
-
-[env.production]
+main = "./src/server.js"
+compatibility_date="2023-05-18"
 
 # [secrets]
 # DISCORD_TOKEN
 # DISCORD_PUBLIC_KEY
 # DISCORD_APPLICATION_ID
-# DISCORD_TEST_GUILD_ID
