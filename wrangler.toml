@@ -2,6 +2,9 @@ name = "nceahelpworker"
 main = "./src/server.js"
 compatibility_date="2023-05-18"
 
+[placement]
+mode = "smart"
+
 # [secrets]
 # DISCORD_TOKEN
 # DISCORD_PUBLIC_KEY
