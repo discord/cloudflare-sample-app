@@ -8,7 +8,7 @@ import {
   InteractionType,
   verifyKey,
 } from 'discord-interactions';
-import { REVIVE_COMMAND, TEST_COMMAND } from './commands.js';
+import { PING_COMMAND, REVIVE_COMMAND, TEST_COMMAND } from './commands.js';
 import { InteractionResponseFlags } from 'discord-interactions';
 
 class JsonResponse extends Response {
@@ -58,8 +58,9 @@ router.post('/', async (request, env) => {
   if (interaction.type === InteractionType.APPLICATION_COMMAND) {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (interaction.data.name.toLowerCase()) {
+      // Revive ping command - checks if a user has a role and pings a role if they do
       case REVIVE_COMMAND.name.toLowerCase(): {
-        if (message.member.roles.includes('909724765026148402')) {
+        if (interaction.member.roles.includes('909724765026148402')) {
           console.log('handling revive request');
           return new JsonResponse({
             type: 4,
@@ -81,12 +82,24 @@ router.post('/', async (request, env) => {
           },
         });
       }
+      // Test command - for testing
       case TEST_COMMAND.name.toLowerCase(): {
         return new JsonResponse({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             content: 'Test successful :)',
             flags: InteractionResponseFlags.EPHEMERAL,
+          },
+        });
+      }
+      // Ping command - for checking latency of the bot, returned as a non-ephemeral message
+      case PING_COMMAND.name.toLowerCase(): {
+        return new JsonResponse({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Pong! Latency: ${
+              Date.now() - Math.round(interaction.id / 4194304 + 1420070400000)
+            }ms (rounded to nearest integer)`,
           },
         });
       }

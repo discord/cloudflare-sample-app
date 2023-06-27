@@ -13,3 +13,8 @@ export const TEST_COMMAND = {
   name: 'test',
   description: 'This command serves no purpose.',
 };
+
+export const PING_COMMAND = {
+  name: 'ping',
+  description: 'Check latency stats of the bot.',
+};
