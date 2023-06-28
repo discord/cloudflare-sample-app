@@ -76,7 +76,7 @@ router.post('/interactions', async (c) => {
             data: {
               content:
                 'You do not have the correct role necessary to perform this action. If you believe this is an error, please contact CyberFlame United#0001 (<@218977195375329281>).',
-              flags: 64,
+              flags: InteractionResponseFlags.EPHEMERAL,
             },
           });
         }
@@ -117,7 +117,6 @@ router.post('/interactions', async (c) => {
                 Math.round(interaction.id / 4194304 + 1420070400000)
               }ms (rounded to nearest integer)`,
             },
-            flags: InteractionResponseFlags.EPHEMERAL,
           });
         }
         default:
