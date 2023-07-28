@@ -20,19 +20,19 @@
   "license": "MIT",
   "dependencies": {
     "discord-interactions": "^3.4.0",
-    "hono": "^3.2.6"
+    "hono": "^3.3.4"
   },
   "devDependencies": {
     "c8": "^8.0.0",
     "chai": "^4.3.7",
     "dotenv": "^16.0.3",
     "eslint": "^8.41.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-config-prettier": "^8.9.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "mocha": "^10.2.0",
     "ngrok": "^5.0.0-beta.2",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "sinon": "^15.1.0",
-    "wrangler": "^3.0.1"
+    "wrangler": "^3.3.0"
   }
 }
