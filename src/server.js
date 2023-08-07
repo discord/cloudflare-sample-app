@@ -8,8 +8,14 @@ import {
   InteractionType,
   verifyKey,
 } from 'discord-interactions';
-import { PING_COMMAND, REVIVE_COMMAND, TEST_COMMAND } from './commands.js';
+import {
+  LOOKUP_COMMAND,
+  PING_COMMAND,
+  REVIVE_COMMAND,
+  TEST_COMMAND,
+} from './commands.js';
 import { InteractionResponseFlags } from 'discord-interactions';
+import { lookup } from './nzqa_lookup.js';
 
 const router = new Hono();
 
@@ -61,7 +67,7 @@ router.post('/interactions', async (c) => {
           if (interaction.member.roles.includes('909724765026148402')) {
             console.log('handling revive request');
             return c.json({
-              type: 4,
+              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
               data: {
                 content:
                   "Hey there <@&879527848573042738> squad, it's time to make the chat active!",
@@ -107,6 +113,12 @@ router.post('/interactions', async (c) => {
             },
           });
         }
+        case LOOKUP_COMMAND.name.toLowerCase(): {
+          return c.json(
+            await lookup(interaction.data.options[0].value, interaction.id)
+          );
+        }
+
         // Ping command - for checking latency of the bot, returned as a non-ephemeral message
         case PING_COMMAND.name.toLowerCase(): {
           return c.json({
