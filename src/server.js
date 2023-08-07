@@ -41,7 +41,7 @@ router.get('/', (request, env) => {
 router.post('/', async (request, env) => {
   const { isValid, interaction } = await server.verifyDiscordRequest(
     request,
-    env
+    env,
   );
   if (!isValid || !interaction) {
     return new Response('Bad request signature.', { status: 401 });
