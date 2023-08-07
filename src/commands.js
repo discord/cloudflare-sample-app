@@ -22,7 +22,7 @@ export const PING_COMMAND = {
 export const LOOKUP_COMMAND = {
   name: 'lookup',
   description: 'Get detailed information on a standard!',
-  commandOptions: [
+  options: [
     {
       type: 3,
       name: 'standard',

@@ -19,6 +19,7 @@
   "author": "Aaron Lowe <cyberflameu@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
     "discord-interactions": "^3.4.0",
     "hono": "^3.3.4"
   },
