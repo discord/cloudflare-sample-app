@@ -1,9 +1,4 @@
-import {
-  REVIVE_COMMAND,
-  TEST_COMMAND,
-  PING_COMMAND,
-  LOOKUP_COMMAND,
-} from './commands.js';
+import * as commands from './commands.js';
 import dotenv from 'dotenv';
 import process from 'node:process';
 
@@ -40,10 +35,10 @@ const response = await fetch(url, {
   },
   method: 'PUT',
   body: JSON.stringify([
-    REVIVE_COMMAND,
-    TEST_COMMAND,
-    PING_COMMAND,
-    LOOKUP_COMMAND,
+    commands.REVIVE_COMMAND,
+    commands.TEST_COMMAND,
+    commands.PING_COMMAND,
+    commands.LOOKUP_COMMAND,
   ]),
 });
 

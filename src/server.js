@@ -8,12 +8,7 @@ import {
   InteractionType,
   verifyKey,
 } from 'discord-interactions';
-import {
-  LOOKUP_COMMAND,
-  PING_COMMAND,
-  REVIVE_COMMAND,
-  TEST_COMMAND,
-} from './commands.js';
+import * as commands from './commands.js';
 import { InteractionResponseFlags } from 'discord-interactions';
 import { lookup } from './nzqa_lookup.js';
 
@@ -63,7 +58,7 @@ router.post('/interactions', async (c) => {
       // Most user commands will come as `APPLICATION_COMMAND`.
       switch (interaction.data.name.toLowerCase()) {
         // Revive ping command - checks if a user has a role and pings a role if they do
-        case REVIVE_COMMAND.name.toLowerCase(): {
+        case commands.REVIVE_COMMAND.name.toLowerCase(): {
           if (interaction.member.roles.includes('909724765026148402')) {
             console.log('handling revive request');
             return c.json({
@@ -87,7 +82,7 @@ router.post('/interactions', async (c) => {
           });
         }
         // Test command - for testing
-        case TEST_COMMAND.name.toLowerCase(): {
+        case commands.TEST_COMMAND.name.toLowerCase(): {
           return c.json({
             type: InteractionResponseType.MODAL,
             data: {
@@ -113,14 +108,14 @@ router.post('/interactions', async (c) => {
             },
           });
         }
-        case LOOKUP_COMMAND.name.toLowerCase(): {
+        case commands.LOOKUP_COMMAND.name.toLowerCase(): {
           return c.json(
             await lookup(interaction.data.options[0].value, interaction.id)
           );
         }
 
         // Ping command - for checking latency of the bot, returned as a non-ephemeral message
-        case PING_COMMAND.name.toLowerCase(): {
+        case commands.PING_COMMAND.name.toLowerCase(): {
           return c.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {

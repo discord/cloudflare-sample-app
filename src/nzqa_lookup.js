@@ -12,63 +12,50 @@ export async function lookup(input, applicationId) {
   const h3Elements = $('div[id="mainPage"] h3');
   const list = h3Elements.map((index, element) => $(element).text()).get();
 
-  var standard_details = $('table[class="noHover"] *')
+  const standardDetails = $('table[class="noHover"] *')
     .contents()
-    .map(function () {
-      return this.type === 'text' ? $(this).text() : '';
-    })
+    .map((index, element) => (element.type === 'text' ? $(element).text() : ''))
     .get()
-    .join(' ');
+    .join(' ')
+    .replace(/undefined|-|website|\s\s+/g, ' ')
+    .replace(/(\r\n|\n|\r)/gm, '')
+    .split(' ')
+    .filter((value) => value !== '');
 
-  //
-  var asstandard_file = $(
+  const standardFile = $(
     '#mainPage > table.tableData.noHover > tbody > tr:nth-child(2) *'
   )
     .contents()
-    .map(function () {
-      return this.type === 'text' ? $(this).text() : '';
-    })
+    .map((index, element) => (element.type === 'text' ? $(element).text() : ''))
     .get()
-    .join(' ');
-
-  standard_details = standard_details
-    .replace('undefined', '')
-    .replace('-', '')
-    .replace('website')
-    .replace(/\s\s+/g, ' ')
+    .join(' ')
+    .replace(/undefined|-|website|\s\s+/g, ' ')
     .replace(/(\r\n|\n|\r)/gm, '')
-    .split(' ');
-  asstandard_file = asstandard_file
-    .replace('undefined', '')
-    .replace('-', '')
-    .replace('website')
-    .replace(/\s\s+/g, ' ')
-    .replace(/(\r\n|\n|\r)/gm, '')
-    .split(' ');
+    .split(' ')
+    .filter((value) => value !== '');
 
-  if (standard_details[8] == 'undefined') {
-    standard_details.splice(8, 1);
+  console.log(standardFile);
+
+  if (standardDetails[8] === 'undefined') {
+    standardDetails.splice(8, 1);
   }
+  const [standardName] = list.slice(1);
 
-  console.log(list);
-  console.log(standard_details);
-  console.log(asstandard_file);
-  console.log(`Getting data for AS${standard}`);
-
-  var standardname = list[1];
-  console.log(standard_details);
+  const level = standardDetails[7];
+  const credits = standardDetails[5];
+  const assessment = standardDetails[6];
 
   try {
     const embedJson = {
       color: 0x0099ff,
-      title: 'AS' + standard,
-      description: standardname,
+      title: `Standard ${standard}`,
+      description: standardName,
       fields: [
-        { name: 'Level', value: standard_details[8], inline: true },
-        { name: 'Credits', value: standard_details[6], inline: true },
+        { name: 'Level', value: level, inline: true },
+        { name: 'Credits', value: credits, inline: true },
         {
           name: 'Assessment',
-          value: standard_details[7].replace(' ', ''),
+          value: assessment.replace(' ', ''),
           inline: false,
         },
       ],
@@ -79,29 +66,42 @@ export async function lookup(input, applicationId) {
       timestamp: new Date().toISOString(),
     };
 
-    let isnum = /^\d+$/.test(asstandard_file[3]);
+    if (Array.isArray(standardFile)) {
+      if (standardFile.includes('Achievement')) {
+        const asYear = standardFile[2];
+        let isnum = /^\d+$/.test(asYear);
 
-    if (asstandard_file[3] != undefined && isnum) {
-      embedJson.fields.push({
-        name: 'Achievement Standard',
-        value: `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/achievements/${asstandard_file[3]}/as${standard}.pdf`,
-      });
-    } else {
-      embedJson.fields.push({
-        name: 'Achievement Standard',
-        value: `No File Found`,
-      });
-    }
-    if (standard_details[7] == 'External') {
-      embedJson.fields.push(
-        {
-          name: 'Examination Paper',
-          value: `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/2020/${standard}-exm-2020.pdf`,
-        },
-        {
-          name: 'Answers to Paper',
-          value: `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/2020/${standard}-ass-2020.pdf`,
+        if (asYear != undefined && isnum) {
+          embedJson.fields.push({
+            name: 'Achievement Standard',
+            value: `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/achievements/${asYear}/as${standard}.pdf`,
+          });
+        } else {
+          embedJson.fields.push({
+            name: 'Achievement Standard',
+            value: `No File Found`,
+          });
         }
+      } else if (standardFile.includes('Unit')) {
+        embedJson.fields.push({
+          name: 'Unit Standard',
+          value: `https://www.nzqa.govt.nz/nqfdocs/units/pdf/${standard}.pdf`,
+        });
+      } else {
+        embedJson.fields.push({
+          name: 'Standard specification',
+          value: 'No File Found',
+        });
+      }
+    }
+    if (assessment === 'External') {
+      const year = new Date().getFullYear() - 2;
+      console.log(year);
+      const examPaperUrl = `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-exm-${year}.pdf`;
+      const answersUrl = `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-ass-${year}.pdf`;
+      embedJson.fields.push(
+        { name: 'Examination Paper', value: examPaperUrl },
+        { name: 'Answers to Paper', value: answersUrl }
       );
     }
     return {
