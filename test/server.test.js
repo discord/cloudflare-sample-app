@@ -5,7 +5,7 @@ import {
   InteractionType,
   InteractionResponseFlags,
 } from 'discord-interactions';
-import { AWW_COMMAND, INVITE_COMMAND } from '../src/commands.js';
+import { REVIVE_COMMAND, TEST_COMMAND } from '../src/commands.js';
 import sinon from 'sinon';
 import server from '../src/server.js';
 
@@ -14,18 +14,18 @@ describe('Server', () => {
     it('should return a greeting message with the Discord application ID', async () => {
       const request = {
         method: 'GET',
-        url: new URL('/', 'http://discordo.example'),
+        url: new URL('/', 'https://discord.worker.nceahelp.com'),
       };
-      const env = { DISCORD_APPLICATION_ID: '123456789' };
+      const env = { DISCORD_APPLICATION_ID: '1045608895307067453' };
 
       const response = await server.fetch(request, env);
       const body = await response.text();
 
-      expect(body).to.equal('👋 123456789');
+      expect(body).to.equal('👋 1045608895307067453');
     });
   });
 
-  describe('POST /', () => {
+  describe('POST /interactions', () => {
     let verifyDiscordRequestStub;
 
     beforeEach(() => {
@@ -43,7 +43,7 @@ describe('Server', () => {
 
       const request = {
         method: 'POST',
-        url: new URL('/', 'http://discordo.example'),
+        url: new URL('/interactions', 'https://discord.worker.nceahelp.com'),
       };
 
       const env = {};
@@ -58,17 +58,17 @@ describe('Server', () => {
       expect(body.type).to.equal(InteractionResponseType.PONG);
     });
 
-    it('should handle an AWW command interaction', async () => {
+    it('should handle a revive command interaction', async () => {
       const interaction = {
         type: InteractionType.APPLICATION_COMMAND,
         data: {
-          name: AWW_COMMAND.name,
+          name: REVIVE_COMMAND.name,
         },
       };
 
       const request = {
         method: 'POST',
-        url: new URL('/', 'http://discordo.example'),
+        url: new URL('/interactions', 'https://discord.worker.nceahelp.com'),
       };
 
       const env = {};
@@ -81,25 +81,25 @@ describe('Server', () => {
       const response = await server.fetch(request, env);
       const body = await response.json();
       expect(body.type).to.equal(
-        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE
       );
     });
 
-    it('should handle an invite command interaction', async () => {
+    it('should handle a test command interaction', async () => {
       const interaction = {
         type: InteractionType.APPLICATION_COMMAND,
         data: {
-          name: INVITE_COMMAND.name,
+          name: TEST_COMMAND.name,
         },
       };
 
       const request = {
         method: 'POST',
-        url: new URL('/', 'http://discordo.example'),
+        url: new URL('/interactions', 'https://discord.worker.nceahelp.com'),
       };
 
       const env = {
-        DISCORD_APPLICATION_ID: '123456789',
+        DISCORD_APPLICATION_ID: '1045608895307067453',
       };
 
       verifyDiscordRequestStub.resolves({
@@ -113,7 +113,7 @@ describe('Server', () => {
         InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       );
       expect(body.data.content).to.include(
-        'https://discord.com/oauth2/authorize?client_id=123456789&scope=applications.commands',
+        'https://discord.com/oauth2/authorize?client_id=1045608895307067453&scope=applications.commands+bot&permissions=8'
       );
       expect(body.data.flags).to.equal(InteractionResponseFlags.EPHEMERAL);
     });
@@ -128,7 +128,7 @@ describe('Server', () => {
 
       const request = {
         method: 'POST',
-        url: new URL('/', 'http://discordo.example'),
+        url: new URL('/interactions', 'https://discord.worker.nceahelp.com'),
       };
 
       verifyDiscordRequestStub.resolves({
@@ -147,7 +147,7 @@ describe('Server', () => {
     it('should return a "Not Found" response', async () => {
       const request = {
         method: 'GET',
-        url: new URL('/unknown', 'http://discordo.example'),
+        url: new URL('/unknown', 'https://discord.worker.nceahelp.com'),
       };
       const response = await server.fetch(request, {});
       expect(response.status).to.equal(404);
