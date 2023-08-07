@@ -81,7 +81,7 @@ describe('Server', () => {
       const response = await server.fetch(request, env);
       const body = await response.json();
       expect(body.type).to.equal(
-        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE
+        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       );
     });
 
@@ -110,10 +110,10 @@ describe('Server', () => {
       const response = await server.fetch(request, env);
       const body = await response.json();
       expect(body.type).to.equal(
-        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE
+        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       );
       expect(body.data.content).to.include(
-        'https://discord.com/oauth2/authorize?client_id=123456789&scope=applications.commands'
+        'https://discord.com/oauth2/authorize?client_id=123456789&scope=applications.commands',
       );
       expect(body.data.flags).to.equal(InteractionResponseFlags.EPHEMERAL);
     });
