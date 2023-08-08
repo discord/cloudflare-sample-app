@@ -110,7 +110,10 @@ router.post('/interactions', async (c) => {
         }
         case commands.LOOKUP_COMMAND.name.toLowerCase(): {
           return c.json(
-            await lookup(interaction.data.options[0].value, interaction.id)
+            await lookup(
+              interaction.data.options[0].value,
+              interaction.application_id
+            )
           );
         }
 
