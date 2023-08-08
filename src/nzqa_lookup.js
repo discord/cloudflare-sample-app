@@ -3,9 +3,8 @@ import { InteractionResponseType } from 'discord-interactions';
 
 export async function lookup(input, applicationId) {
   var standard = input;
-  const response = await fetch(
-    `https://www.nzqa.govt.nz/ncea/assessment/view-detailed.do?standardNumber=${standard}`
-  );
+  const standardUri = `https://www.nzqa.govt.nz/ncea/assessment/view-detailed.do?standardNumber=${standard}`;
+  const response = await fetch(standardUri);
   const data = await response.text();
   const $ = load(data);
 
@@ -49,7 +48,7 @@ export async function lookup(input, applicationId) {
     const embedJson = {
       color: 0x0099ff,
       title: `Standard ${standard}`,
-      description: standardName,
+      description: `[${standardName}](${standardUri})`,
       fields: [
         { name: 'Level', value: level, inline: true },
         { name: 'Credits', value: credits, inline: true },
@@ -61,7 +60,7 @@ export async function lookup(input, applicationId) {
       ],
       footer: {
         text: applicationId,
-        icon_url: 'https://when.lol/1x1.png',
+        icon_url: `https://cdn.discordapp.com/avatars/${applicationId}/c8ee73d8401a7a112512ea81a87c4cbd.png`,
       },
       timestamp: new Date().toISOString(),
     };
@@ -69,12 +68,12 @@ export async function lookup(input, applicationId) {
     if (Array.isArray(standardFile)) {
       if (standardFile.includes('Achievement')) {
         const asYear = standardFile[2];
-        let isnum = /^\d+$/.test(asYear);
+        let isNum = /^\d+$/.test(asYear);
 
-        if (asYear != undefined && isnum) {
+        if (asYear != undefined && isNum) {
           embedJson.fields.push({
             name: 'Achievement Standard',
-            value: `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/achievements/${asYear}/as${standard}.pdf`,
+            value: `[AS${standard} (${asYear}, PDF)](https://www.nzqa.govt.nz/nqfdocs/ncea-resource/achievements/${asYear}/as${standard}.pdf)`,
           });
         } else {
           embedJson.fields.push({
@@ -85,7 +84,7 @@ export async function lookup(input, applicationId) {
       } else if (standardFile.includes('Unit')) {
         embedJson.fields.push({
           name: 'Unit Standard',
-          value: `https://www.nzqa.govt.nz/nqfdocs/units/pdf/${standard}.pdf`,
+          value: `[US${standard} (PDF)](https://www.nzqa.govt.nz/nqfdocs/units/pdf/${standard}.pdf)`,
         });
       } else {
         embedJson.fields.push({
@@ -97,11 +96,13 @@ export async function lookup(input, applicationId) {
     if (assessment === 'External') {
       const year = new Date().getFullYear() - 2;
       console.log(year);
-      const examPaperUrl = `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-exm-${year}.pdf`;
-      const answersUrl = `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-ass-${year}.pdf`;
+      const examPaperUrl = `[AS${standard}'s exam paper for ${year} (PDF)](https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-exm-${year}.pdf)`;
+      // const answersUrl = `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-ass-${year}.pdf`;
+      // todo: potentially add resource booklets, and for all of these URLs run fetch and see if it returns 404 or the pdf
       embedJson.fields.push(
-        { name: 'Examination Paper', value: examPaperUrl },
-        { name: 'Answers to Paper', value: answersUrl }
+        { name: 'Examination Paper', value: examPaperUrl }
+
+        // { name: 'Answers to Paper', value: answersUrl }
       );
     }
     return {

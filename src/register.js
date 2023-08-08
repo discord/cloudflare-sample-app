@@ -18,7 +18,7 @@ if (!token) {
 }
 if (!applicationId) {
   throw new Error(
-    'The DISCORD_APPLICATION_ID environment variable is required.',
+    'The DISCORD_APPLICATION_ID environment variable is required.'
   );
 }
 

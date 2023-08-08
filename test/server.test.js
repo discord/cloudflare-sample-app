@@ -110,7 +110,7 @@ describe('Server', () => {
       const response = await server.fetch(request, env);
       const body = await response.json();
       expect(body.type).to.equal(
-        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE
       );
       expect(body.data.content).to.include(
         'https://discord.com/oauth2/authorize?client_id=1045608895307067453&scope=applications.commands+bot&permissions=8'
