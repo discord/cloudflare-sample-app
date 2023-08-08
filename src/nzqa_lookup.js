@@ -6,7 +6,7 @@ export async function lookup(input, applicationId) {
   const standardUri = `https://www.nzqa.govt.nz/ncea/assessment/view-detailed.do?standardNumber=${standard}`;
   const response = await fetch(standardUri);
   const data = await response.text();
-  const $ = load(data);
+  const $ = load(data); // perhaps look at moving off cheerio to htmlrewriter
 
   const h3Elements = $('div[id="mainPage"] h3');
   const list = h3Elements.map((index, element) => $(element).text()).get();
