@@ -5,11 +5,11 @@
 import { Hono } from 'hono';
 import {
   InteractionResponseType,
+  InteractionResponseFlags,
   InteractionType,
   verifyKey,
 } from 'discord-interactions';
 import * as commands from './commands.js';
-import { InteractionResponseFlags } from 'discord-interactions';
 import { lookup } from './nzqa_lookup.js';
 
 const router = new Hono();
