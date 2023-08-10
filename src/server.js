@@ -109,12 +109,16 @@ router.post('/interactions', async (c) => {
           });
         }
         case commands.LOOKUP_COMMAND.name.toLowerCase(): {
-          return c.json(
-            await lookup(
+          c.executionCtx.waitUntil(
+            lookup(
               interaction.data.options[0].value,
-              interaction.application_id
+              interaction.application_id,
+              interaction.token
             )
           );
+          return c.json({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+          });
         }
 
         // Ping command - for checking latency of the bot, returned as a non-ephemeral message

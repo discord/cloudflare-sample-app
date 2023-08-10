@@ -1,12 +1,31 @@
 import { load } from 'cheerio';
-import { InteractionResponseType } from 'discord-interactions';
 
-export async function lookup(input, applicationId) {
+export async function lookup(input, applicationId, token) {
   var standard = input;
   const standardUri = `https://www.nzqa.govt.nz/ncea/assessment/view-detailed.do?standardNumber=${standard}`;
+  const cacheKey = new URL(standardUri).toString(); // Use a valid URL for cacheKey
+  const cache = caches.default;
+  const cachedResponse = await cache.match(cacheKey);
+
+  if (cachedResponse) {
+    console.log('Cache hit');
+    // Use cached response if it exists and is less than 2 hours old
+    await fetch(
+      `https://discord.com/api/v10/webhooks/${applicationId}/${token}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: cachedResponse.body,
+      }
+    );
+    return;
+  }
+
   const response = await fetch(standardUri);
   const data = await response.text();
-  const $ = load(data); // perhaps look at moving off cheerio to htmlrewriter, and cache results?
+  const $ = load(data); // perhaps look at moving off cheerio to htmlrewriter
 
   const h3Elements = $('div[id="mainPage"] h3');
   const list = h3Elements.map((index, element) => $(element).text()).get();
@@ -32,8 +51,6 @@ export async function lookup(input, applicationId) {
     .replace(/(\r\n|\n|\r)/gm, '')
     .split(' ')
     .filter((value) => value !== '');
-
-  console.log(standardFile);
 
   if (standardDetails[8] === 'undefined') {
     standardDetails.splice(8, 1);
@@ -105,20 +122,43 @@ export async function lookup(input, applicationId) {
         // { name: 'Answers to Paper', value: answersUrl }
       );
     }
-    return {
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        embeds: [embedJson],
-      },
+
+    const followupData = {
+      embeds: [embedJson],
     };
+
+    await fetch(
+      `https://discord.com/api/v10/webhooks/${applicationId}/${token}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(followupData),
+      }
+    );
+
+    const cacheResponse = new Response(JSON.stringify(followupData), {
+      headers: {
+        'content-type': 'application/json',
+        'Cache-Control': 'max-age=7200',
+      },
+    });
+    await cache.put(cacheKey, cacheResponse);
   } catch (error) {
-    console.log(error);
-    return {
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content:
-          'Please enter a valid standard! (</lookup:1137896912020840599>)',
-      },
-    };
+    await fetch(
+      `https://discord.com/api/v10/webhooks/${applicationId}/${token}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content:
+            'Please enter a valid standard! (</lookup:1137896912020840599>)',
+        }),
+      }
+    );
   }
+  return;
 }
