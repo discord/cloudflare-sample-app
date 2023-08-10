@@ -1,6 +1,6 @@
 import { load } from 'cheerio';
 
-export async function lookup(input, applicationId, token) {
+export async function lookup(input: number, applicationId: string, token: string) {
   var standard = input;
   const standardUri = `https://www.nzqa.govt.nz/ncea/assessment/view-detailed.do?standardNumber=${standard}`;
   const cacheKey = new URL(standardUri).toString(); // Use a valid URL for cacheKey
@@ -91,22 +91,26 @@ export async function lookup(input, applicationId, token) {
           embedJson.fields.push({
             name: 'Achievement Standard',
             value: `[AS${standard} (${asYear}, PDF)](https://www.nzqa.govt.nz/nqfdocs/ncea-resource/achievements/${asYear}/as${standard}.pdf)`,
+            inline: false
           });
         } else {
           embedJson.fields.push({
             name: 'Achievement Standard',
             value: `No File Found`,
+            inline: false
           });
         }
       } else if (standardFile.includes('Unit')) {
         embedJson.fields.push({
           name: 'Unit Standard',
           value: `[US${standard} (PDF)](https://www.nzqa.govt.nz/nqfdocs/units/pdf/${standard}.pdf)`,
+          inline: false
         });
       } else {
         embedJson.fields.push({
           name: 'Standard specification',
           value: 'No File Found',
+          inline: false
         });
       }
     }
@@ -117,7 +121,10 @@ export async function lookup(input, applicationId, token) {
       // const answersUrl = `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-ass-${year}.pdf`;
       // todo: potentially add resource booklets, and for all of these URLs run fetch and see if it returns 404 or the pdf
       embedJson.fields.push(
-        { name: 'Examination Paper', value: examPaperUrl }
+        {
+          name: 'Examination Paper', value: examPaperUrl,
+          inline: false
+        }
 
         // { name: 'Answers to Paper', value: answersUrl }
       );

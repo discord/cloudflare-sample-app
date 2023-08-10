@@ -20,10 +20,13 @@
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
+    "discord-api-types": "^0.37.52",
     "discord-interactions": "^3.4.0",
+    "discord-verify": "^1.2.0",
     "hono": "^3.3.4"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230807.0",
     "c8": "^8.0.0",
     "chai": "^4.3.7",
     "dotenv": "^16.0.3",
@@ -34,6 +37,7 @@
     "ngrok": "^5.0.0-beta.2",
     "prettier": "^3.0.0",
     "sinon": "^15.1.0",
-    "wrangler": "^3.3.0"
+    "typescript": "^5.1.6",
+    "wrangler": "^3.5.0"
   }
 }

@@ -1,6 +1,15 @@
 name = "nceahelpworker"
-main = "./src/server.js"
-compatibility_date="2023-05-18"
+main = "./src/server.ts"
+compatibility_date="2023-08-10"
+
+account_id= "4ed1f8e12cda519236361f09dd8956cf"
+usage_model = "bundled"
+send_metrics = true
+minify = true
+
+
+route = { pattern = "discord.worker.nceahelp.com", zone_name = "nceahelp.com", custom_domain = true }
+
 
 [placement]
 mode = "smart"

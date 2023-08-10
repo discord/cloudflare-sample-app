@@ -7,12 +7,19 @@ import {
   InteractionResponseType,
   InteractionResponseFlags,
   InteractionType,
-  verifyKey,
 } from 'discord-interactions';
 import * as commands from './commands.js';
 import { lookup } from './nzqa_lookup.js';
+import * as discordJs from 'discord-api-types/v10';
+import { isValidRequest } from 'discord-verify';
 
-const router = new Hono();
+type Bindings = {
+	DISCORD_PUBLIC_KEY: string
+  DISCORD_APPLICATION_ID: string
+	TOKEN: string
+}
+
+const router = new Hono<{ Bindings: Bindings }>();
 
 /**
  * A simple :wave: hello page to verify the worker is working.
@@ -28,23 +35,25 @@ router.get('/', (c) => {
  */
 // eslint-disable-next-line no-unused-vars
 router.post('/interactions', async (c) => {
-  const signature = c.req.header('x-signature-ed25519');
-  const timestamp = c.req.header('x-signature-timestamp');
-  const body = await c.req.text();
-  if (!verifyKey(body, signature, timestamp, c.env.DISCORD_PUBLIC_KEY)) {
-    console.error('Invalid Request');
-    return c.text('Bad request signature.', 401);
-  }
-  const interaction = JSON.parse(body);
+  // const signature = c.req.header('x-signature-ed25519');
+  // const timestamp = c.req.header('x-signature-timestamp');
+  // const body = await c.req.text();
+  // if (!verifyKey(body, signature, timestamp, c.env.DISCORD_PUBLIC_KEY)) {
+  //   console.error('Invalid Request');
+  //   return c.text('Bad request signature.', 401);
+  // }
+  const isValid = await isValidRequest(c.req.raw, c.env.DISCORD_PUBLIC_KEY).catch(console.error)
+  if (!isValid) return new Response('Invalid request', { status: 401 })
+  const interaction = await c.req.json() as discordJs.APIInteraction;
 
   switch (interaction.type) {
-    case InteractionType.PING: {
+    case discordJs.InteractionType.Ping: {
       // The `PING` message is used during the initial webhook handshake, and is
       // required to configure the webhook in the developer portal.
       return c.json({ type: InteractionResponseType.PONG });
     }
 
-    case InteractionType.MODAL_SUBMIT: {
+    case discordJs.InteractionType.ModalSubmit: {
       // The `MODAL_SUBMIT` message is sent when a user submits a modal form.
       return c.json({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -54,12 +63,12 @@ router.post('/interactions', async (c) => {
       });
     }
 
-    case InteractionType.APPLICATION_COMMAND: {
+    case discordJs.InteractionType.ApplicationCommand: {
       // Most user commands will come as `APPLICATION_COMMAND`.
       switch (interaction.data.name.toLowerCase()) {
         // Revive ping command - checks if a user has a role and pings a role if they do
         case commands.REVIVE_COMMAND.name.toLowerCase(): {
-          if (interaction.member.roles.includes('909724765026148402')) {
+          if (interaction.member && interaction.member.roles.includes('909724765026148402')) {
             console.log('handling revive request');
             return c.json({
               type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -108,18 +117,28 @@ router.post('/interactions', async (c) => {
             },
           });
         }
-        case commands.LOOKUP_COMMAND.name.toLowerCase(): {
-          c.executionCtx.waitUntil(
-            lookup(
-              interaction.data.options[0].value,
-              interaction.application_id,
-              interaction.token
-            )
-          );
-          return c.json({
-            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-          });
-        }
+case commands.LOOKUP_COMMAND.name.toLowerCase(): {
+  if (interaction.data && 'options' in interaction.data && interaction.data.options) {
+    const standardNumber = interaction.data.options[0] as discordJs.APIApplicationCommandInteractionDataNumberOption;
+    c.executionCtx.waitUntil(
+      lookup(
+        standardNumber.value,
+        interaction.application_id,
+        interaction.token
+      )
+    );
+    return c.json({
+      type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+    });
+  } else {
+    return c.json({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        content: "I'm sorry, I don't recognize that command.",
+      },
+    });
+  }
+}
 
         // Ping command - for checking latency of the bot, returned as a non-ephemeral message
         case commands.PING_COMMAND.name.toLowerCase(): {
@@ -128,7 +147,7 @@ router.post('/interactions', async (c) => {
             data: {
               content: `Pong! Latency: ${
                 Date.now() -
-                Math.round(interaction.id / 4194304 + 1420070400000)
+                Math.round(Number(interaction.id) / 4194304 + 1420070400000)
               }ms (rounded to nearest integer)`,
             },
           });
