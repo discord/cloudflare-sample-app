@@ -8,8 +8,6 @@ updates:
       - "CyberFlameGO"
     reviewers:
       - "CyberFlameGO"
-    registries:
-      - "github-maven"
       
   - package-ecosystem: "github-actions"
     directory: "/"
