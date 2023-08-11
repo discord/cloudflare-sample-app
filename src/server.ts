@@ -6,7 +6,6 @@ import { Hono } from 'hono';
 import {
   InteractionResponseType,
   InteractionResponseFlags,
-  InteractionType,
 } from 'discord-interactions';
 import * as commands from './commands.js';
 import { lookup } from './nzqa_lookup.js';

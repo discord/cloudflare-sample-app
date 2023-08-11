@@ -7,9 +7,7 @@ usage_model = "bundled"
 send_metrics = true
 minify = true
 
-
 route = { pattern = "discord.worker.nceahelp.com", zone_name = "nceahelp.com", custom_domain = true }
-
 
 [placement]
 mode = "smart"

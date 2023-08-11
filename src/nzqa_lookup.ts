@@ -114,6 +114,7 @@ export async function lookup(input: number, applicationId: string, token: string
         });
       }
     }
+
     if (assessment === 'External') {
       const year = new Date().getFullYear() - 2;
       console.log(year);
@@ -133,6 +134,8 @@ export async function lookup(input: number, applicationId: string, token: string
     const followupData = {
       embeds: [embedJson],
     };
+    
+    // perhaps look at using the discord-api-methods interactionskit package for these if i end up needing to use them for something else
 
     await fetch(
       `https://discord.com/api/v10/webhooks/${applicationId}/${token}`,
