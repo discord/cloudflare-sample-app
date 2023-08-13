@@ -41,9 +41,9 @@ router.post('/interactions', async (c) => {
   //   console.error('Invalid Request');
   //   return c.text('Bad request signature.', 401);
   // }
-  const isValid = await isValidRequest(c.req.raw, c.env.DISCORD_PUBLIC_KEY).catch(console.error)
+  const isValid: boolean | void = await isValidRequest(c.req.raw, c.env.DISCORD_PUBLIC_KEY).catch(console.error)
   if (!isValid) return new Response('Invalid request', { status: 401 })
-  const interaction = await c.req.json() as discordJs.APIInteraction;
+  const interaction: discordJs.APIInteraction = await c.req.json() as discordJs.APIInteraction;
 
   switch (interaction.type) {
     case discordJs.InteractionType.Ping: {
