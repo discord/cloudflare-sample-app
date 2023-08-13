@@ -1,22 +1,6 @@
-import { load } from 'cheerio';
+import { CheerioAPI, Cheerio, Element, load } from 'cheerio';
+import { APIEmbed, APIEmbedField, RESTPostAPIWebhookWithTokenJSONBody } from 'discord-api-types/v10';
 
-interface FollowupData {
-  embeds: {
-    color: number;
-    title: string;
-    description: string;
-    fields: {
-      name: string;
-      value: string;
-      inline: boolean;
-    }[];
-    footer: {
-      text: string;
-      icon_url: string;
-    };
-    timestamp: string;
-  }[];
-}
 
 export async function lookup(
   input: number,
@@ -47,16 +31,16 @@ export async function lookup(
 
   const response: Response = await fetch(standardUri);
   const data: string = await response.text();
-  const $: CheerioStatic = load(data); // perhaps look at moving off cheerio to htmlrewriter
+  const $: CheerioAPI = load(data); // perhaps look at moving off cheerio to htmlrewriter
 
-  const h3Elements: Cheerio = $('div[id="mainPage"] h3');
+  const h3Elements: Cheerio<Element> = $('div[id="mainPage"] h3');
   const list: string[] = h3Elements
-    .map((index: number, element: CheerioElement) => $(element).text())
+    .map((index: number, element: Element) => $(element).text())
     .get();
 
   const standardDetails: string[] = $('table[class="noHover"] *')
     .contents()
-    .map((index: number, element: CheerioElement) =>
+    .map((index: number, element) =>
       element.type === 'text' ? $(element).text() : ''
     )
     .get()
@@ -70,7 +54,7 @@ export async function lookup(
     '#mainPage > table.tableData.noHover > tbody > tr:nth-child(2) *'
   )
     .contents()
-    .map((index: number, element: CheerioElement) =>
+    .map((index: number, element) =>
       element.type === 'text' ? $(element).text() : ''
     )
     .get()
@@ -90,21 +74,7 @@ export async function lookup(
   const assessment: string = standardDetails[6];
 
   try {
-    const embedJson: {
-      color: number;
-      title: string;
-      description: string;
-      fields: {
-        name: string;
-        value: string;
-        inline: boolean;
-      }[];
-      footer: {
-        text: string;
-        icon_url: string;
-      };
-      timestamp: string;
-    } = {
+    const embedJson: APIEmbed = {
       color: 0x0099ff,
       title: `Standard ${standard}`,
       description: `[${standardName}](${standardUri})`,
@@ -116,7 +86,7 @@ export async function lookup(
           value: assessment.replace(' ', ''),
           inline: false,
         },
-      ],
+      ] as APIEmbedField[],
       footer: {
         text: applicationId,
         icon_url: `https://cdn.discordapp.com/avatars/${applicationId}/c8ee73d8401a7a112512ea81a87c4cbd.png`,
@@ -130,26 +100,26 @@ export async function lookup(
         let isNum: boolean = /^\d+$/.test(asYear);
 
         if (asYear != undefined && isNum) {
-          embedJson.fields.push({
+          embedJson.fields!.push({
             name: 'Achievement Standard',
             value: `[AS${standard} (${asYear}, PDF)](https://www.nzqa.govt.nz/nqfdocs/ncea-resource/achievements/${asYear}/as${standard}.pdf)`,
             inline: false,
           });
         } else {
-          embedJson.fields.push({
+          embedJson.fields!.push({
             name: 'Achievement Standard',
             value: `No File Found`,
             inline: false,
           });
         }
       } else if (standardFile.includes('Unit')) {
-        embedJson.fields.push({
+        embedJson.fields!.push({
           name: 'Unit Standard',
           value: `[US${standard} (PDF)](https://www.nzqa.govt.nz/nqfdocs/units/pdf/${standard}.pdf)`,
           inline: false,
         });
       } else {
-        embedJson.fields.push({
+        embedJson.fields!.push({
           name: 'Standard specification',
           value: 'No File Found',
           inline: false,
@@ -163,7 +133,7 @@ export async function lookup(
       const examPaperUrl: string = `[AS${standard}'s exam paper for ${year} (PDF)](https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-exm-${year}.pdf)`;
       // const answersUrl = `https://www.nzqa.govt.nz/nqfdocs/ncea-resource/exams/${year}/${standard}-ass-${year}.pdf`;
       // todo: potentially add resource booklets, and for all of these URLs run fetch and see if it returns 404 or the pdf
-      embedJson.fields.push({
+      embedJson.fields!.push({
         name: 'Examination Paper',
         value: examPaperUrl,
         inline: false,
@@ -172,7 +142,7 @@ export async function lookup(
       // { name: 'Answers to Paper', value: answersUrl }
     }
 
-    const followupData: FollowupData = {
+    const followupData: RESTPostAPIWebhookWithTokenJSONBody = {
       embeds: [embedJson],
     };
 

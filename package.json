@@ -6,6 +6,7 @@
   "private": true,
   "main": "src/server.js",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "start": "node src/server.js",
     "dev": "wrangler dev src/server.js",
     "ngrok": "ngrok http 8787",
@@ -19,6 +20,7 @@
   "author": "Aaron Lowe <cyberflameu@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/cheerio": "^0.22.31",
     "cheerio": "1.0.0-rc.12",
     "discord-api-types": "^0.37.52",
     "discord-interactions": "^3.4.0",

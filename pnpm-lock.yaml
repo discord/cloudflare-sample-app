@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@types/cheerio':
+    specifier: ^0.22.31
+    version: 0.22.31
   cheerio:
     specifier: 1.0.0-rc.12
     version: 1.0.0-rc.12
@@ -512,6 +515,12 @@ packages:
       '@types/node': 20.4.10
       '@types/responselike': 1.0.0
     dev: true
+
+  /@types/cheerio@0.22.31:
+    resolution: {integrity: sha512-Kt7Cdjjdi2XWSfrZ53v4Of0wG3ZcmaegFXjMmz9tfNrZSkzzo36G0AL1YqSdcIA78Etjt6E609pt5h1xnQkPUw==}
+    dependencies:
+      '@types/node': 20.4.10
+    dev: false
 
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
