@@ -9,6 +9,9 @@ export async function lookup(
 ): Promise<void> {
   var standard: number = input;
   const standardUri: string = `https://www.nzqa.govt.nz/ncea/assessment/view-detailed.do?standardNumber=${standard}`;
+
+  // Perhaps look at using the tiered cache method instead of this (https://developers.cloudflare.com/workers/examples/cache-using-fetch/) 
+
   const cacheKey: string = new URL(standardUri).toString(); // Use a valid URL for cacheKey
   const cache: Cache = caches.default;
   const cachedResponse: Response | undefined = await cache.match(cacheKey);
