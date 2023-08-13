@@ -1,4 +1,4 @@
-import { CheerioAPI, Cheerio, Element, load } from 'cheerio';
+import { CheerioAPI, Cheerio, Element, load, AnyNode } from 'cheerio';
 import { APIEmbed, APIEmbedField, RESTPostAPIWebhookWithTokenJSONBody } from 'discord-api-types/v10';
 
 
@@ -40,7 +40,7 @@ export async function lookup(
 
   const standardDetails: string[] = $('table[class="noHover"] *')
     .contents()
-    .map((index: number, element) =>
+    .map((index: number, element: AnyNode) =>
       element.type === 'text' ? $(element).text() : ''
     )
     .get()
@@ -54,7 +54,7 @@ export async function lookup(
     '#mainPage > table.tableData.noHover > tbody > tr:nth-child(2) *'
   )
     .contents()
-    .map((index: number, element) =>
+    .map((index: number, element: AnyNode) =>
       element.type === 'text' ? $(element).text() : ''
     )
     .get()
