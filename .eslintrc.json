@@ -8,7 +8,7 @@
     "serviceworker": true,
     "module": true,
     "worker": true,
-    "mocha": true,
+    "mocha": true
   },
   "parserOptions": {
     "sourceType": "module",
