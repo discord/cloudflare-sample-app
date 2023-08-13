@@ -5,7 +5,7 @@ import {
   InteractionType,
   InteractionResponseFlags,
 } from 'discord-interactions';
-import { REVIVE_COMMAND, TEST_COMMAND } from '../src/commands.js';
+import * as command from '../src/commands.js';
 import sinon from 'sinon';
 import server from '../src/server.js';
 
@@ -62,7 +62,7 @@ describe('Server', () => {
       const interaction = {
         type: InteractionType.APPLICATION_COMMAND,
         data: {
-          name: REVIVE_COMMAND.name,
+          name: command.REVIVE_COMMAND.name,
         },
       };
 
