@@ -10,7 +10,6 @@ export async function lookup(
   var standard: number = input;
   const standardUri: string = `https://www.nzqa.govt.nz/ncea/assessment/view-detailed.do?standardNumber=${standard}`;
 
-  // Perhaps look at using the tiered cache method instead of this (https://developers.cloudflare.com/workers/examples/cache-using-fetch/) 
 
   const cacheKey: string = new URL(standardUri).toString(); // Use a valid URL for cacheKey
   const cache: Cache = caches.default;
@@ -18,7 +17,7 @@ export async function lookup(
 
   if (cachedResponse) {
     console.log('Cache hit');
-    // Use cached response if it exists and is less than 2 hours old
+    // Use cached response if it exists
     await fetch(
       `https://discord.com/api/v10/webhooks/${applicationId}/${token}`,
       {
@@ -32,7 +31,12 @@ export async function lookup(
     return;
   }
 
-  const response: Response = await fetch(standardUri);
+  const response: Response = await fetch(standardUri, {
+    cf: {
+      cacheTtl: 28800, // 8 hours
+      cacheEverything: true,
+    },
+  });
   const data: string = await response.text();
   const $: CheerioAPI = load(data); // perhaps look at moving off cheerio to htmlrewriter
 
@@ -165,7 +169,7 @@ export async function lookup(
     const cacheResponse: Response = new Response(JSON.stringify(followupData), {
       headers: {
         'content-type': 'application/json',
-        'Cache-Control': 'max-age=7200',
+        'Cache-Control': 'public, max-age=7200, stale-while-revalidate=7200, stale-if-error=86400',
       },
     });
     await cache.put(cacheKey, cacheResponse);
