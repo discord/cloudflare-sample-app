@@ -9,6 +9,10 @@ minify = true
 
 route = { pattern = "discord.worker.nceahelp.com", zone_name = "nceahelp.com", custom_domain = true }
 
+kv_namespaces = [
+  { binding = "TOKEN_STORE", id = "6054fb4ce09045aea65372b682e4fdbf"}
+]
+
 [placement]
 mode = "smart"
 

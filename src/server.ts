@@ -3,6 +3,7 @@
  */
 
 import { Hono } from 'hono';
+import { getSignedCookie, setSignedCookie } from 'hono/cookie';
 import {
   InteractionResponseType,
   InteractionResponseFlags,
@@ -11,14 +12,47 @@ import * as commands from './commands.js';
 import { lookup } from './nzqa_lookup.js';
 import * as discordJs from 'discord-api-types/v10';
 import { isValidRequest } from 'discord-verify';
+import * as storage from './storage.js';
+import * as discord from './discord.js';
 
-type Bindings = {
+export type Bindings = {
 	DISCORD_PUBLIC_KEY: string
   DISCORD_APPLICATION_ID: string
+  DISCORD_CLIENT_SECRET: string
 	TOKEN: string
+  WORKER_URL: string
+  COOKIE_SECRET: string
+  TOKEN_STORE: KVNamespace
 }
 
 const router = new Hono<{ Bindings: Bindings }>();
+
+async function updateMetadata(userId: discordJs.Snowflake, env: Bindings) {
+  // Fetch the Discord tokens from storage
+  const tokens = await storage.getDiscordTokens(userId, env.TOKEN_STORE) as storage.Tokens;
+    
+  let metadata = {};
+  try {
+    // Fetch the new metadata you want to use from an external source. 
+    // This data could be POST-ed to this endpoint, but every service
+    // is going to be different.  To keep the example simple, we'll
+    // just generate some random data. 
+    metadata = {
+      cookieseaten: 1483,
+      allergictonuts: 0, // 0 for false, 1 for true
+      firstcookiebaked: '2003-12-20',
+    };
+  } catch (e) {
+    console.error(e);
+    // If fetching the profile data for the external service fails for any reason,
+    // ensure metadata on the Discord side is nulled out. This prevents cases
+    // where the user revokes an external app permissions, and is left with
+    // stale linked role data.
+  }
+
+  // Push the data to Discord.
+  await discord.pushMetadata(userId, tokens, metadata, env);
+}
 
 /**
  * A simple :wave: hello page to verify the worker is working.
@@ -160,6 +194,49 @@ case commands.LOOKUP_COMMAND.name.toLowerCase(): {
   console.error('Unknown Type');
   return c.json({ error: 'Unknown Type' }, { status: 400 });
 });
+
+router.get('/linked-roles', async (c) => {
+  const { url, state } = discord.getOAuthUrl(c.env);
+
+  await setSignedCookie(c, 'client_state', state, c.env.COOKIE_SECRET, {
+    maxAge: 1000 * 60 * 5,
+    secure: true,
+  });
+  return c.redirect(url);
+});
+
+router.get('/oauth-callback', async (c) => {
+  try {
+    const code = c.req.query('code');
+    const state = c.req.query('state');
+
+    if (await getSignedCookie(c, c.env.COOKIE_SECRET, 'client_state') !== state)
+      return c.text('state verification failed', 403);
+
+    const tokens = await discord.getOAuthTokens(code, c.env);
+    if (!tokens) return c.text('failed to fetch tokens', 500);
+
+    const data = await discord.getUserData(tokens);
+    if (!data || !data.user) return c.text('failed to fetch user data', 500);
+
+    console.log(JSON.stringify(c.env.TOKEN_STORE))
+
+    await storage.storeDiscordTokens(data.user.id, {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      expires_in: Date.now() + tokens.expires_in * 1000,
+    }, c.env.TOKEN_STORE);
+
+    await updateMetadata(data.user.id, c.env);
+
+    return c.text('connected! you may now close this window');
+  } catch (e) {
+    console.log(e);
+
+    return c.text('oh uh, something wrong happened', 500);
+  }
+});
+
 router.all('*', () => new Response('Not Found.', { status: 404 }));
 
 export default router;

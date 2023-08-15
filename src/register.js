@@ -26,36 +26,69 @@ if (!applicationId) {
  * Register all commands globally.  This can take o(minutes), so wait until
  * you're sure these are the commands you want.
  */
-const url = `https://discord.com/api/v10/applications/${applicationId}/commands`;
 
-const response = await fetch(url, {
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bot ${token}`,
-  },
-  method: 'PUT',
-  body: JSON.stringify([
-    commands.REVIVE_COMMAND,
-    commands.TEST_COMMAND,
-    commands.PING_COMMAND,
-    commands.LOOKUP_COMMAND,
-  ]),
-});
 
-if (response.ok) {
-  console.log('Registered all commands');
-  const data = await response.json();
-  console.log(JSON.stringify(data, null, 2));
-} else {
-  console.error('Error registering commands');
-  let errorText = `Error registering commands \n ${response.url}: ${response.status} ${response.statusText}`;
-  try {
-    const error = await response.text();
-    if (error) {
-      errorText = `${errorText} \n\n ${error}`;
+async function register(url, body) {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bot ${token}`,
+    },
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    console.log('Register success!');
+    const data = await response.json();
+    console.log(JSON.stringify(data, null, 2));
+  } else {
+    console.error('Error during registration');
+    let errorText = `Error registering: \n ${response.url}: ${response.status} ${response.statusText}`;
+    try {
+      const error = await response.text();
+      if (error) {
+        errorText = `${errorText} \n\n ${error}`;
+      }
+    } catch (err) {
+      console.error('Error reading body from request:', err);
     }
-  } catch (err) {
-    console.error('Error reading body from request:', err);
+    console.error(errorText);
   }
-  console.error(errorText);
 }
+
+// supported types: number_lt=1, number_gt=2, number_eq=3 number_neq=4, datetime_lt=5, datetime_gt=6, boolean_eq=7, boolean_neq=8
+const metadata = [
+  {
+    key: 'cookieseaten',
+    name: 'Cookies Eaten',
+    description: 'Cookies Eaten Greater Than',
+    type: 2,
+  },
+  {
+    key: 'allergictonuts',
+    name: 'Allergic To Nuts',
+    description: 'Is Allergic To Nuts',
+    type: 7,
+  },
+  {
+    key: 'bakingsince',
+    name: 'Baking Since',
+    description: 'Days since baking their first cookie',
+    type: 6,
+  },
+];
+
+const cmds = [
+  commands.REVIVE_COMMAND,
+  commands.TEST_COMMAND,
+  commands.PING_COMMAND,
+  commands.LOOKUP_COMMAND,
+]
+
+const commandEndpoint = `https://discord.com/api/v10/applications/${applicationId}/commands`;
+const metadataEndpoint = `https://discord.com/api/v10/applications/${applicationId}/role-connections/metadata`;
+
+register(commandEndpoint, cmds)
+register(metadataEndpoint, metadata)
+

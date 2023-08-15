@@ -12,8 +12,8 @@ dependencies:
     specifier: 1.0.0-rc.12
     version: 1.0.0-rc.12
   discord-api-types:
-    specifier: ^0.37.52
-    version: 0.37.52
+    specifier: ^0.37.53
+    version: 0.37.53
   discord-interactions:
     specifier: ^3.4.0
     version: 3.4.0
@@ -21,8 +21,8 @@ dependencies:
     specifier: ^1.2.0
     version: 1.2.0
   hono:
-    specifier: ^3.4.1
-    version: 3.4.1
+    specifier: ^3.4.3
+    version: 3.4.3
 
 devDependencies:
   '@cloudflare/workers-types':
@@ -85,8 +85,8 @@ packages:
       mime: 3.0.0
     dev: true
 
-  /@cloudflare/workerd-darwin-64@1.20230807.0:
-    resolution: {integrity: sha512-p1XgkX6OcomFSRSHiIo6XbWB40sMExnFUWtZFfSvB7oNmkrtEvUCI3iuh+ibFI5IDSZqsRKyIHx6Oe22Z0ei5A==}
+  /@cloudflare/workerd-darwin-64@1.20230814.0:
+    resolution: {integrity: sha512-KLBJcsoQakDf3cN5vY4aYJZbYL62GHrHtAsojmtXfUT1dRY0h1JxPe6eyZ9AoMR0OYdGGIIVXFKtJR/w2H+9Uw==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [darwin]
@@ -94,8 +94,8 @@ packages:
     dev: true
     optional: true
 
-  /@cloudflare/workerd-darwin-arm64@1.20230807.0:
-    resolution: {integrity: sha512-HjhjRFPvDg3Sh4TXyz38Z+AhaLA+0AiAmYKRadcnKhysjOaTew86POS3xdaKiZ3xG83J7rsLcqajW54znbmCkg==}
+  /@cloudflare/workerd-darwin-arm64@1.20230814.0:
+    resolution: {integrity: sha512-r0DC4oAA+ml+lyP7Ys/waVvaqIyAIphytAXbPOyW0yYCY2NnLpCWGO/eGrs0iMuAfGilXdRNP9m1SoEPvHLsLQ==}
     engines: {node: '>=16'}
     cpu: [arm64]
     os: [darwin]
@@ -103,8 +103,8 @@ packages:
     dev: true
     optional: true
 
-  /@cloudflare/workerd-linux-64@1.20230807.0:
-    resolution: {integrity: sha512-PPuGKoRILFTlZDC7uGXgrYBucopqkvicaov/ypbPmUVb/DfrXGqftEkNbXlyiXY1g0t10wXRiSZWi7hOBOIH7w==}
+  /@cloudflare/workerd-linux-64@1.20230814.0:
+    resolution: {integrity: sha512-1/y2KHQroshBpCLGX0B+qGdNeXtsAEnMHHhFVWfqdVzUh8DxlpI1Z7II+J6+8a4z8aR/RZnjw+P8ZguECMB/qw==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [linux]
@@ -112,8 +112,8 @@ packages:
     dev: true
     optional: true
 
-  /@cloudflare/workerd-linux-arm64@1.20230807.0:
-    resolution: {integrity: sha512-ESAf2tXarK8dJl07voa/NI2BBpH1duldfgeQQQmor437A3+gSqQSBhAEmh05bjHy6dYHXgZtwLPky+LL6hmyBA==}
+  /@cloudflare/workerd-linux-arm64@1.20230814.0:
+    resolution: {integrity: sha512-DEmGpMgqYaGzWBx/wHypjaFhtucUC3F/hkvSzKGhmvVBR2AiAq+Cw7P8WE6DO58tCF3V9ALuLe6gGhUCkHxMBw==}
     engines: {node: '>=16'}
     cpu: [arm64]
     os: [linux]
@@ -121,8 +121,8 @@ packages:
     dev: true
     optional: true
 
-  /@cloudflare/workerd-windows-64@1.20230807.0:
-    resolution: {integrity: sha512-DYKkLtT4lNRdVx+2fbYgPxdF7ypJn9bT2HYMZ93N7XPwaKFx2svBRMrZkwBcvwuNb+99Z0jnaQwdcFnHcFLzZA==}
+  /@cloudflare/workerd-windows-64@1.20230814.0:
+    resolution: {integrity: sha512-ZQJAtJ9P1Z6FUDljQHYmo1uuDi7mbbGoZYWiS8wq17pKAVoCPjmGqkrylwg0ipoLhqSb0bDb/ww3MwqX2xX/jA==}
     engines: {node: '>=16'}
     cpu: [x64]
     os: [win32]
@@ -1073,8 +1073,8 @@ packages:
     engines: {node: '>=0.3.1'}
     dev: true
 
-  /discord-api-types@0.37.52:
-    resolution: {integrity: sha512-TP99aMgY6rHuDIy056GDm1j2nGOcaLbFpjVbvAmv6N6vhkjHNqHXCHVqKtGisaQ8D15slbxTHNl/SSkPdx2syg==}
+  /discord-api-types@0.37.53:
+    resolution: {integrity: sha512-N6uUgv50OyP981Mfxrrt0uxcqiaNr0BDaQIoqfk+3zM2JpZtwU9v7ce1uaFAP53b2xSDvcbrk80Kneui6XJgGg==}
     dev: false
 
   /discord-interactions@3.4.0:
@@ -1581,8 +1581,8 @@ packages:
     hasBin: true
     dev: true
 
-  /hono@3.4.1:
-    resolution: {integrity: sha512-fA7/cfgNg060mt12cYykdstwqM/bRvqYmQlPpEjoKIwMs6QF1rPJzZjppCrFuZZJvKE1vEP6kEAaaDH96XRg7Q==}
+  /hono@3.4.3:
+    resolution: {integrity: sha512-HbVxZh9yC3hV25+mFjUaM65t7g8ia2mXbhAGmVHA0r8+guizTJq1Cg4f2SmB5+JrviG0vaqOnWJ9U3O05aikbA==}
     engines: {node: '>=16.0.0'}
     dev: false
 
@@ -1934,10 +1934,10 @@ packages:
       source-map-support: 0.5.21
       stoppable: 1.1.0
       undici: 5.23.0
-      workerd: 1.20230807.0
+      workerd: 1.20230814.0
       ws: 8.13.0
       youch: 3.2.3
-      zod: 3.21.4
+      zod: 3.22.0
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -2686,17 +2686,17 @@ packages:
       isexe: 2.0.0
     dev: true
 
-  /workerd@1.20230807.0:
-    resolution: {integrity: sha512-yDdHld8wm5lQ6M/WYD68tIzbAmPjcgAoVAYhAHQFaXZSpryjIw9mT3O/NEloyZ8xiickpoPuNSQ4ffxPLao2+Q==}
+  /workerd@1.20230814.0:
+    resolution: {integrity: sha512-eic5xdb/HpuLxTk2IPQL6I07K5DYnEu0YPMOWbjk3agB41l4eQDWClxTC0ORLVw7U3eb+EHODE+vP+Pk7MJKCg==}
     engines: {node: '>=16'}
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      '@cloudflare/workerd-darwin-64': 1.20230807.0
-      '@cloudflare/workerd-darwin-arm64': 1.20230807.0
-      '@cloudflare/workerd-linux-64': 1.20230807.0
-      '@cloudflare/workerd-linux-arm64': 1.20230807.0
-      '@cloudflare/workerd-windows-64': 1.20230807.0
+      '@cloudflare/workerd-darwin-64': 1.20230814.0
+      '@cloudflare/workerd-darwin-arm64': 1.20230814.0
+      '@cloudflare/workerd-linux-64': 1.20230814.0
+      '@cloudflare/workerd-linux-arm64': 1.20230814.0
+      '@cloudflare/workerd-windows-64': 1.20230814.0
     dev: true
 
   /workerpool@6.2.1:
@@ -2838,6 +2838,6 @@ packages:
       stacktracey: 2.1.8
     dev: true
 
-  /zod@3.21.4:
-    resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+  /zod@3.22.0:
+    resolution: {integrity: sha512-y5KZY/ssf5n7hCGDGGtcJO/EBJEm5Pa+QQvFBeyMOtnFYOSflalxIFFvdaYevPhePcmcKC4aTbFkCcXN7D0O8Q==}
     dev: true

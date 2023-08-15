@@ -2,36 +2,26 @@
  * Share command metadata from a common spot to be used for both runtime
  * and registration.
  */
-interface Command {
-  name: string;
-  description: string;
-  options?: {
-    type: number;
-    name: string;
-    description: string;
-    required: boolean;
-  }[];
-}
 
-export const REVIVE_COMMAND: Command = {
+export const REVIVE_COMMAND = {
   name: 'revive',
   description:
     'Revival ping command, executable by members of the Promotions Team',
 };
 
-export const TEST_COMMAND: Command = {
+export const TEST_COMMAND = {
   name: 'test',
   description: 'This command serves no purpose.',
 };
 
-export const PING_COMMAND: Command = {
+export const PING_COMMAND = {
   name: 'ping',
   description: 'Check latency stats of the bot.',
 };
 
-export const LOOKUP_COMMAND: Command = {
-  name: 'lookup',
+export const LOOKUP_COMMAND = {
   description: 'Get detailed information on a standard!',
+  name: 'lookup',
   options: [
     {
       type: 4,
