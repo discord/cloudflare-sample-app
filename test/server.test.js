@@ -8,6 +8,7 @@ import {
 import { AWW_COMMAND, INVITE_COMMAND } from '../src/commands.js';
 import sinon from 'sinon';
 import server from '../src/server.js';
+import { redditUrl } from '../src/reddit.js';
 
 describe('Server', () => {
   describe('GET /', () => {
@@ -78,11 +79,23 @@ describe('Server', () => {
         interaction: interaction,
       });
 
+      // mock the fetch call to reddit
+      const result = sinon
+        // eslint-disable-next-line no-undef
+        .stub(global, 'fetch')
+        .withArgs(redditUrl)
+        .resolves({
+          status: 200,
+          ok: true,
+          json: sinon.fake.resolves({ data: { children: [] } }),
+        });
+
       const response = await server.fetch(request, env);
       const body = await response.json();
       expect(body.type).to.equal(
         InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       );
+      expect(result.calledOnce);
     });
 
     it('should handle an invite command interaction', async () => {

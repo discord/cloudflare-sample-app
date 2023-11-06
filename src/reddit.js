@@ -5,11 +5,23 @@
  * @returns The url of an image or video which is cute.
  */
 export async function getCuteUrl() {
-  const response = await fetch('https://www.reddit.com/r/aww/hot.json', {
+  const response = await fetch(redditUrl, {
     headers: {
       'User-Agent': 'justinbeckwith:awwbot:v1.0.0 (by /u/justinblat)',
     },
   });
+  if (!response.ok) {
+    let errorText = `Error fetching ${response.url}: ${response.status} ${response.statusText}`;
+    try {
+      const error = await response.text();
+      if (error) {
+        errorText = `${errorText} \n\n ${error}`;
+      }
+    } catch {
+      // ignore
+    }
+    throw new Error(errorText);
+  }
   const data = await response.json();
   const posts = data.data.children
     .map((post) => {
@@ -27,3 +39,5 @@ export async function getCuteUrl() {
   const randomPost = posts[randomIndex];
   return randomPost;
 }
+
+export const redditUrl = 'https://www.reddit.com/r/aww/hot.json';
