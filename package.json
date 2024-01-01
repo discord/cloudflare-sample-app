@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "c8": "^8.0.0",
-    "chai": "^4.3.7",
+    "chai": "^5.0.0",
     "dotenv": "^16.0.3",
     "eslint": "^8.41.0",
     "eslint-config-prettier": "^9.0.0",
