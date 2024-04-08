@@ -2,7 +2,7 @@
  * The core server that runs on a Cloudflare worker.
  */
 
-import { Router } from 'itty-router';
+import { AutoRouter } from 'itty-router';
 import {
   InteractionResponseType,
   InteractionType,
@@ -24,7 +24,7 @@ class JsonResponse extends Response {
   }
 }
 
-const router = Router();
+const router = AutoRouter();
 
 /**
  * A simple :wave: hello page to verify the worker is working.
@@ -104,10 +104,8 @@ async function verifyDiscordRequest(request, env) {
 }
 
 const server = {
-  verifyDiscordRequest: verifyDiscordRequest,
-  fetch: async function (request, env) {
-    return router.handle(request, env);
-  },
+  verifyDiscordRequest,
+  fetch: router.fetch,
 };
 
 export default server;
