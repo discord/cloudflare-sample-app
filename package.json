@@ -6,8 +6,7 @@
   "private": true,
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "wrangler dev src/server.js",
+    "start": "wrangler dev",
     "ngrok": "ngrok http 8787",
     "test": "c8 mocha test",
     "fix": "eslint --fix '**/*.js'",
@@ -20,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "discord-interactions": "^3.4.0",
-    "itty-router": "^4.0.13"
+    "itty-router": "^5.0.9"
   },
   "devDependencies": {
     "c8": "^9.0.0",
