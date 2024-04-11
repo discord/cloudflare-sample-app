@@ -9,8 +9,8 @@
     "start": "wrangler dev",
     "ngrok": "ngrok http 8787",
     "test": "c8 mocha test",
-    "fix": "eslint --fix '**/*.js'",
-    "lint": "eslint '**/*.js'",
+    "fix": "biome check --apply .",
+    "lint": "biome check .",
     "register": "node src/register.js",
     "publish": "wrangler deploy"
   },
@@ -22,15 +22,12 @@
     "itty-router": "^5.0.9"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.6.4",
     "c8": "^9.0.0",
     "chai": "^5.0.0",
     "dotenv": "^16.0.3",
-    "eslint": "^8.41.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.0",
     "mocha": "^10.2.0",
     "ngrok": "^5.0.0-beta.2",
-    "prettier": "^3.0.1",
     "sinon": "^17.0.0",
     "wrangler": "^3.0.1"
   }
