@@ -90,7 +90,7 @@ $ npm run register
 Now you should be ready to start your server:
 
 ```
-$ npm run dev
+$ npm start
 ```
 
 ### Setting up ngrok
