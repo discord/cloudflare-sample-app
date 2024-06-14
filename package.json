@@ -18,7 +18,7 @@
   "author": "Justin Beckwith <justin.beckwith@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "discord-interactions": "^3.4.0",
+    "discord-interactions": "4.0.0",
     "itty-router": "^5.0.9"
   },
   "devDependencies": {
