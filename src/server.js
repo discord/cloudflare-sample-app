@@ -95,7 +95,7 @@ async function verifyDiscordRequest(request, env) {
   const isValidRequest =
     signature &&
     timestamp &&
-    await verifyKey(body, signature, timestamp, env.DISCORD_PUBLIC_KEY);
+    (await verifyKey(body, signature, timestamp, env.DISCORD_PUBLIC_KEY));
   if (!isValidRequest) {
     return { isValid: false };
   }
