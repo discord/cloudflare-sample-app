@@ -1,4 +1,5 @@
 node_modules
 coverage
-**.vars
+*.vars
 .wrangler
+*-lock.*
