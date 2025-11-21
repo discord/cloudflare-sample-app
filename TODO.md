@@ -36,10 +36,15 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
   - ✅ Return user-friendly error messages
   - Location: src/reddit.js
 
-- [ ] **Add request timeout handling** in server.js
-  - Ensure responses within Discord's 3-second limit
-  - Consider deferred responses for slow operations
-  - Location: src/server.js:41-88
+- [x] **Add request timeout handling** in server.js
+  - ✅ Created src/utils.js with timeout utilities
+  - ✅ Implemented withTimeout() wrapper for async operations
+  - ✅ Set operation timeout to 2.5 seconds (allows 0.5s for response processing)
+  - ✅ Separate error handling for timeout vs regular errors
+  - ✅ User-friendly timeout error messages
+  - ✅ Performance tracking includes timeout information
+  - ✅ 15+ test cases in test/utils.test.js
+  - Location: src/utils.js, src/server.js, src/config.js
 
 ### Testing & Quality
 
@@ -408,6 +413,21 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
     - Improved code organization, readability, and testability
     - Each handler is now independently testable
     - Location: src/server.js
+
+17. **Request Timeout Handling** (High Priority)
+    - Created src/utils.js with timeout utility functions
+    - Implemented withTimeout() to wrap promises with configurable timeout
+    - Implemented createTimeoutError() for identifiable timeout errors
+    - Implemented isTimeoutError() to check if an error is a timeout
+    - Added DISCORD_CONFIG.OPERATION_TIMEOUT_MS (2.5 seconds)
+    - Added ERROR_MESSAGES.TIMEOUT_ERROR for user-facing messages
+    - Wrapped getCutePost() with timeout in handleAwwCommand
+    - Separate error handling for timeout vs regular errors
+    - Logs timeout events with warning level
+    - Proper timer cleanup on completion or rejection
+    - Created test/utils.test.js with 15+ test cases
+    - Ensures compliance with Discord's 3-second response requirement
+    - Location: src/utils.js, src/server.js, src/config.js, test/utils.test.js
 
 ---
 
