@@ -153,10 +153,21 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
   - ✅ Cloudflare Workers constraints documentation
   - Location: CONTRIBUTING.md
 
-- [ ] **Add API documentation**
-  - Document internal API structure
-  - Document Discord interaction flow
-  - Add sequence diagrams
+- [x] **Add API documentation**
+  - ✅ Created comprehensive API.md (700+ lines)
+  - ✅ Architecture overview with visual diagrams
+  - ✅ Complete module structure documentation (all 9 modules)
+  - ✅ Discord interaction flow with 5-stage breakdown
+  - ✅ Request/response cycle documentation
+  - ✅ 5 ASCII sequence diagrams for key scenarios
+  - ✅ TypeScript-style data model interfaces
+  - ✅ Error handling strategies and flow diagrams
+  - ✅ Performance considerations and optimizations
+  - ✅ Security documentation (signature verification, authorization)
+  - ✅ API endpoints documentation
+  - ✅ Monitoring and metrics guide
+  - ✅ Extension points for customization
+  - Location: API.md
 
 - [x] **Update README with troubleshooting**
   - ✅ Common issues and solutions (Discord, ngrok, Reddit API)
@@ -487,6 +498,29 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
     - Per-Worker instance statistics suitable for distributed deployments
     - Note: Requires setting DISCORD_OWNER_ID environment variable and running `npm run register`
     - Location: src/stats.js, src/commands.js, src/server.js, src/reddit.js, src/responses.js, src/config.js, src/register.js
+
+20. **API Documentation** (Medium Priority)
+    - Created comprehensive API.md with 700+ lines of documentation
+    - Architecture overview with visual ASCII diagrams showing request flow
+    - Complete module structure documentation for all 9 core modules
+    - Each module documented with exports, key functions, dependencies, and purpose
+    - Discord interaction flow with 5-stage breakdown (arrival, verification, routing, execution, response)
+    - Detailed request/response cycle documentation for different command types
+    - 5 ASCII sequence diagrams covering key scenarios:
+      1. /awwww command with cache hit
+      2. /awwww command with cache miss (Reddit API fetch)
+      3. Admin command with successful authorization
+      4. Unauthorized admin command attempt
+      5. Timeout scenario with error handling
+    - TypeScript-style interface definitions for all data models
+    - Error handling documentation with 5 error types and flow diagrams
+    - Performance considerations: caching strategy, timeout protection, resource limits
+    - Security documentation: Ed25519 verification, admin authorization, secrets management
+    - API endpoints documentation (GET /, POST /)
+    - Monitoring section documenting /stats and /health metrics
+    - Extension points with guides for adding commands, subreddits, and custom caching
+    - Benefits developers with comprehensive technical reference
+    - Location: API.md
 
 ---
 
