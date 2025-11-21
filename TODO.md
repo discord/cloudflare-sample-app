@@ -133,10 +133,11 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
   - Document Discord interaction flow
   - Add sequence diagrams
 
-- [ ] **Update README with troubleshooting**
-  - Common issues and solutions
-  - Debug guide for local development
-  - FAQ section
+- [x] **Update README with troubleshooting**
+  - ✅ Common issues and solutions (Discord, ngrok, Reddit API)
+  - ✅ Debug guide for local development
+  - ✅ Production deployment troubleshooting
+  - ✅ Getting Help section with debugging steps
   - Location: README.md
 
 ---
@@ -151,11 +152,14 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
   - Configure tsconfig.json
   - Update build process
 
-- [ ] **Extract constants to config file**
-  - Reddit API URL
-  - User-Agent string
-  - Command timeout values
-  - Create src/config.js
+- [x] **Extract constants to config file**
+  - ✅ Created src/config.js with all configuration constants
+  - ✅ REDDIT_CONFIG (API_URL, USER_AGENT, MIN_POST_SCORE)
+  - ✅ CACHE_CONFIG (TTL_MS)
+  - ✅ DISCORD_CONFIG (EMBED_COLOR, MAX_RESPONSE_TIME_MS)
+  - ✅ ERROR_MESSAGES and LOG_MESSAGES
+  - ✅ Updated all files to use centralized config
+  - Location: src/config.js
 
 - [ ] **Improve logging**
   - Add structured logging
@@ -313,6 +317,27 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
     - Security considerations and best practices
     - Cloudflare Workers constraints
     - How to add new commands
+
+### 2025-11-21 - Final Session (Session 3)
+
+11. **README Troubleshooting Section** (Medium Priority)
+    - Added comprehensive 150+ line troubleshooting guide
+    - Common issues: Discord timeouts, signature errors, commands not appearing
+    - Local development issues: Port conflicts, module errors
+    - Production deployment issues: Worker secrets, CI/CD failures
+    - Solutions for ngrok, Reddit API, and Discord-specific problems
+    - "Getting Help" section with debugging steps and log locations
+
+12. **Configuration Refactoring** (Low Priority)
+    - Created centralized src/config.js module
+    - Extracted all magic strings and numbers to named constants
+    - REDDIT_CONFIG: API_URL, USER_AGENT, MIN_POST_SCORE
+    - CACHE_CONFIG: TTL_MS for cache expiration
+    - DISCORD_CONFIG: EMBED_COLOR, MAX_RESPONSE_TIME_MS
+    - ERROR_MESSAGES: Centralized user-facing error messages
+    - LOG_MESSAGES: Consistent console logging messages
+    - Updated reddit.js, cache.js, server.js to use config
+    - Single source of truth for all configuration values
 
 ---
 
