@@ -1,5 +1,5 @@
 import { getFromCache, updateCache, isCacheValid } from './cache.js';
-import { REDDIT_CONFIG, ERROR_MESSAGES } from './config.js';
+import { REDDIT_CONFIG, ERROR_MESSAGES, getRedditUrl } from './config.js';
 import logger from './logger.js';
 
 /**
@@ -84,11 +84,13 @@ function extractPostData(post) {
 
 /**
  * Fetches posts from Reddit API with quality filtering.
+ * @param {string} [subreddit] - The subreddit to fetch from (defaults to 'aww')
  * @returns {Promise<Array<Object>>} Array of post objects with metadata
  * @throws {Error} When Reddit API is unavailable or returns no valid posts
  */
-async function fetchFromReddit() {
-  const response = await fetch(REDDIT_CONFIG.API_URL, {
+async function fetchFromReddit(subreddit = REDDIT_CONFIG.DEFAULT_SUBREDDIT) {
+  const apiUrl = getRedditUrl(subreddit);
+  const response = await fetch(apiUrl, {
     headers: {
       'User-Agent': REDDIT_CONFIG.USER_AGENT,
     },
@@ -118,7 +120,7 @@ async function fetchFromReddit() {
 
   logger.info('Fetched posts from Reddit', {
     count: posts.length,
-    source: 'r/aww'
+    source: `r/${subreddit}`
   });
   return posts;
 }
@@ -126,44 +128,48 @@ async function fetchFromReddit() {
 /**
  * Reach out to the reddit API, and get a random cute post with metadata.
  * Uses caching to reduce API calls.
+ * @param {string} [subreddit] - The subreddit to fetch from (defaults to 'aww')
  * @returns {Promise<Object>} Post object with url, title, author, score, permalink
  * @throws {Error} When Reddit API is unavailable or returns no valid posts.
  */
-export async function getCutePost() {
+export async function getCutePost(subreddit = REDDIT_CONFIG.DEFAULT_SUBREDDIT) {
   const timer = logger.startTimer('reddit_fetch');
   try {
     // Try to get from cache first
-    if (isCacheValid()) {
-      const cachedPost = getFromCache();
+    if (isCacheValid(subreddit)) {
+      const cachedPost = getFromCache(subreddit);
       if (cachedPost) {
         logger.info('Cache hit - returning cached post', {
           cacheSource: 'memory',
+          subreddit: `r/${subreddit}`,
           postTitle: cachedPost.title
         });
-        timer.end({ cacheHit: true });
+        timer.end({ cacheHit: true, subreddit });
         return cachedPost;
       }
     }
 
     // Cache miss or expired - fetch from Reddit
     logger.info('Cache miss - fetching from Reddit API', {
-      cacheSource: 'memory'
+      cacheSource: 'memory',
+      subreddit: `r/${subreddit}`
     });
-    const posts = await fetchFromReddit();
+    const posts = await fetchFromReddit(subreddit);
 
     // Update cache with fresh posts
-    updateCache(posts);
+    updateCache(posts, subreddit);
 
     // Return a random post
     const randomIndex = Math.floor(Math.random() * posts.length);
     const selectedPost = posts[randomIndex];
-    timer.end({ cacheHit: false, postTitle: selectedPost.title });
+    timer.end({ cacheHit: false, subreddit, postTitle: selectedPost.title });
     return selectedPost;
   } catch (error) {
-    timer.end({ success: false });
+    timer.end({ success: false, subreddit });
     logger.error('Error fetching cute content from Reddit', {
       error,
-      operation: 'getCutePost'
+      operation: 'getCutePost',
+      subreddit: `r/${subreddit}`
     });
     throw error;
   }

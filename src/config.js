@@ -6,8 +6,11 @@
  * Reddit API configuration
  */
 export const REDDIT_CONFIG = {
-  // Base URL for Reddit API
-  API_URL: 'https://www.reddit.com/r/aww/hot.json',
+  // Base URL for Reddit API (subreddit will be dynamically inserted)
+  API_BASE_URL: 'https://www.reddit.com/r',
+
+  // Default subreddit
+  DEFAULT_SUBREDDIT: 'aww',
 
   // User agent for Reddit API requests (required by Reddit)
   USER_AGENT: 'justinbeckwith:awwbot:v1.0.0 (by /u/justinblat)',
@@ -15,6 +18,15 @@ export const REDDIT_CONFIG = {
   // Minimum score threshold for post quality filtering
   MIN_POST_SCORE: 10,
 };
+
+/**
+ * Builds the Reddit API URL for a given subreddit.
+ * @param {string} subreddit - The subreddit name (without 'r/' prefix)
+ * @returns {string} The complete Reddit API URL
+ */
+export function getRedditUrl(subreddit = REDDIT_CONFIG.DEFAULT_SUBREDDIT) {
+  return `${REDDIT_CONFIG.API_BASE_URL}/${subreddit}/hot.json`;
+}
 
 /**
  * Cache configuration

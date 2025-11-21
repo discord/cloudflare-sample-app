@@ -61,21 +61,27 @@ function handlePingInteraction() {
 
 /**
  * Handles the /awwww command.
+ * @param {Object} [interaction] - The Discord interaction object (optional)
  * @returns {Promise<JsonResponse>} Response with cute Reddit post or error
  */
-async function handleAwwCommand() {
+async function handleAwwCommand(interaction) {
   const timer = logger.startTimer('awwww_command');
   try {
-    logger.logInteraction('APPLICATION_COMMAND', AWW_COMMAND.name, 'Processing awwww command');
+    // Extract subreddit option from interaction (if provided)
+    const subreddit = interaction?.data?.options?.find(opt => opt.name === 'subreddit')?.value;
+
+    logger.logInteraction('APPLICATION_COMMAND', AWW_COMMAND.name, 'Processing awwww command', {
+      subreddit: subreddit ? `r/${subreddit}` : 'default (r/aww)'
+    });
 
     // Wrap getCutePost with timeout to ensure we respond within Discord's 3-second limit
     const post = await withTimeout(
-      getCutePost(),
+      getCutePost(subreddit),
       DISCORD_CONFIG.OPERATION_TIMEOUT_MS,
       'getCutePost'
     );
 
-    timer.end({ success: true, postTitle: post.title });
+    timer.end({ success: true, postTitle: post.title, subreddit });
     return new JsonResponse(createRedditPostResponse(post));
   } catch (error) {
     timer.end({ success: false, timeout: isTimeoutError(error) });
@@ -151,7 +157,7 @@ async function handleApplicationCommand(interaction, env) {
 
   switch (commandName) {
     case AWW_COMMAND.name.toLowerCase():
-      return await handleAwwCommand();
+      return await handleAwwCommand(interaction);
     case INVITE_COMMAND.name.toLowerCase():
       return handleInviteCommand(env);
     default:
