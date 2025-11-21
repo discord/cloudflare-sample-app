@@ -60,8 +60,26 @@ function extractMediaUrl(post) {
 }
 
 /**
+ * Extracts post metadata for creating rich embeds.
+ * @param {Object} post - Reddit post object from API
+ * @returns {Object} Post metadata including url, title, author, score, permalink
+ */
+function extractPostData(post) {
+  const postData = post.data;
+
+  return {
+    url: extractMediaUrl(post),
+    title: postData.title || 'Cute post from r/aww',
+    author: postData.author || 'Unknown',
+    score: postData.score || 0,
+    permalink: `https://reddit.com${postData.permalink}`,
+    subreddit: postData.subreddit || 'aww',
+  };
+}
+
+/**
  * Fetches posts from Reddit API with quality filtering.
- * @returns {Promise<Array<string>>} Array of cute post URLs
+ * @returns {Promise<Array<Object>>} Array of post objects with metadata
  * @throws {Error} When Reddit API is unavailable or returns no valid posts
  */
 async function fetchFromReddit() {
@@ -83,11 +101,11 @@ async function fetchFromReddit() {
     throw new Error('No posts found in r/aww');
   }
 
-  // Filter posts for quality and safety, then extract media URLs
+  // Filter posts for quality and safety, then extract post data
   const posts = data.data.children
     .filter(isValidPost)
-    .map(extractMediaUrl)
-    .filter((url) => !!url);
+    .map(extractPostData)
+    .filter((post) => !!post.url);
 
   if (posts.length === 0) {
     throw new Error('No valid media posts found in r/aww');
@@ -98,25 +116,24 @@ async function fetchFromReddit() {
 }
 
 /**
- * Reach out to the reddit API, and get the first page of results from
- * r/aww. Filter out posts without readily available images or videos,
- * and return a random result. Uses caching to reduce API calls.
- * @returns {Promise<string>} The url of an image or video which is cute.
+ * Reach out to the reddit API, and get a random cute post with metadata.
+ * Uses caching to reduce API calls.
+ * @returns {Promise<Object>} Post object with url, title, author, score, permalink
  * @throws {Error} When Reddit API is unavailable or returns no valid posts.
  */
-export async function getCuteUrl() {
+export async function getCutePost() {
   try {
     // Try to get from cache first
     if (isCacheValid()) {
-      const cachedUrl = getFromCache();
-      if (cachedUrl) {
-        console.log('Returning cute URL from cache');
-        return cachedUrl;
+      const cachedPost = getFromCache();
+      if (cachedPost) {
+        console.log('Returning cute post from cache');
+        return cachedPost;
       }
     }
 
     // Cache miss or expired - fetch from Reddit
-    console.log('Fetching fresh cute URLs from Reddit API');
+    console.log('Fetching fresh cute posts from Reddit API');
     const posts = await fetchFromReddit();
 
     // Update cache with fresh posts
@@ -129,4 +146,14 @@ export async function getCuteUrl() {
     console.error('Error fetching cute content from Reddit:', error);
     throw error;
   }
+}
+
+/**
+ * Get just the URL of a cute post (backward compatibility wrapper).
+ * @returns {Promise<string>} The url of an image or video which is cute.
+ * @throws {Error} When Reddit API is unavailable or returns no valid posts.
+ */
+export async function getCuteUrl() {
+  const post = await getCutePost();
+  return post.url;
 }

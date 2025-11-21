@@ -9,7 +9,7 @@ import {
   verifyKey,
 } from 'discord-interactions';
 import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
-import { getCuteUrl } from './reddit.js';
+import { getCutePost } from './reddit.js';
 import { InteractionResponseFlags } from 'discord-interactions';
 
 /**
@@ -69,11 +69,25 @@ router.post('/', async (request, env) => {
     switch (interaction.data.name.toLowerCase()) {
       case AWW_COMMAND.name.toLowerCase(): {
         try {
-          const cuteUrl = await getCuteUrl();
+          const post = await getCutePost();
+
+          // Create rich embed with post metadata
+          const embed = {
+            title: post.title,
+            url: post.permalink,
+            color: 0xff4500, // Reddit orange color
+            image: {
+              url: post.url,
+            },
+            footer: {
+              text: `👍 ${post.score} upvotes • Posted by u/${post.author} in r/${post.subreddit}`,
+            },
+          };
+
           return new JsonResponse({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              content: cuteUrl,
+              embeds: [embed],
             },
           });
         } catch (error) {
