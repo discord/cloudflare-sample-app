@@ -1,7 +1,66 @@
 import { getFromCache, updateCache, isCacheValid } from './cache.js';
 
 /**
- * Fetches posts from Reddit API and updates the cache.
+ * Checks if a Reddit post is safe and suitable for display.
+ * @param {Object} post - Reddit post object from API
+ * @returns {boolean} True if post passes all quality checks
+ */
+function isValidPost(post) {
+  const postData = post.data;
+
+  // Filter out NSFW content
+  if (postData.over_18) {
+    return false;
+  }
+
+  // Filter out removed or deleted posts
+  if (postData.removed || postData.author === '[deleted]') {
+    return false;
+  }
+
+  // Filter out gallery posts (not easily displayable)
+  if (post.is_gallery) {
+    return false;
+  }
+
+  // Filter out posts with very low scores (likely spam or low quality)
+  if (postData.score !== undefined && postData.score < 10) {
+    return false;
+  }
+
+  // Must have a valid URL or video
+  const hasMedia =
+    postData?.media?.reddit_video?.fallback_url ||
+    postData?.secure_media?.reddit_video?.fallback_url ||
+    postData?.url;
+
+  return !!hasMedia;
+}
+
+/**
+ * Extracts the media URL from a Reddit post.
+ * @param {Object} post - Reddit post object from API
+ * @returns {string} The media URL (video or image)
+ */
+function extractMediaUrl(post) {
+  const postData = post.data;
+
+  // Priority 1: Reddit video (most reliable for videos)
+  if (postData?.media?.reddit_video?.fallback_url) {
+    return postData.media.reddit_video.fallback_url;
+  }
+
+  // Priority 2: Secure media video
+  if (postData?.secure_media?.reddit_video?.fallback_url) {
+    return postData.secure_media.reddit_video.fallback_url;
+  }
+
+  // Priority 3: Direct URL (images, gifs, external videos)
+  return postData.url;
+}
+
+/**
+ * Fetches posts from Reddit API with quality filtering.
  * @returns {Promise<Array<string>>} Array of cute post URLs
  * @throws {Error} When Reddit API is unavailable or returns no valid posts
  */
@@ -24,23 +83,17 @@ async function fetchFromReddit() {
     throw new Error('No posts found in r/aww');
   }
 
+  // Filter posts for quality and safety, then extract media URLs
   const posts = data.data.children
-    .map((post) => {
-      if (post.is_gallery) {
-        return '';
-      }
-      return (
-        post.data?.media?.reddit_video?.fallback_url ||
-        post.data?.secure_media?.reddit_video?.fallback_url ||
-        post.data?.url
-      );
-    })
-    .filter((post) => !!post);
+    .filter(isValidPost)
+    .map(extractMediaUrl)
+    .filter((url) => !!url);
 
   if (posts.length === 0) {
     throw new Error('No valid media posts found in r/aww');
   }
 
+  console.log(`Fetched ${posts.length} valid cute posts from Reddit`);
   return posts;
 }
 

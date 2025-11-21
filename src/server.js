@@ -143,7 +143,7 @@ const server = {
    * @returns {Promise<Response>} The HTTP response
    */
   fetch: async function (request, env) {
-    return router.handle(request, env);
+    return router.fetch(request, env);
   },
 };
 
