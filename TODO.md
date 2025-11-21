@@ -76,11 +76,18 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
 
 ### Features & Enhancements
 
-- [ ] **Add command options** to /awwww
-  - Allow users to specify subreddit (r/aww, r/eyebleach, r/rarepuppers)
-  - Add filter options (images only, videos only, both)
-  - Update command definition with options
-  - Location: src/commands.js, src/server.js
+- [x] **Add command options** to /awwww
+  - ✅ Allow users to specify subreddit via dropdown
+  - ✅ Added 5 subreddit choices: r/aww, r/eyebleach, r/rarepuppers, r/cats, r/dogpictures
+  - ✅ Updated AWW_COMMAND with options array
+  - ✅ Refactored cache to support multiple subreddits (Map-based)
+  - ✅ Each subreddit cached separately with 5-minute TTL
+  - ✅ Updated getCutePost() and fetchFromReddit() with subreddit parameter
+  - ✅ Extract and pass subreddit option from Discord interactions
+  - ✅ Enhanced logging with subreddit context
+  - ✅ Backward compatible - defaults to r/aww
+  - Note: Run `npm run register` after deployment to update Discord commands
+  - Location: src/commands.js, src/server.js, src/reddit.js, src/cache.js, src/config.js
 
 - [x] **Implement post caching**
   - ✅ Cache Reddit posts in memory (5-minute TTL)
@@ -428,6 +435,23 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
     - Created test/utils.test.js with 15+ test cases
     - Ensures compliance with Discord's 3-second response requirement
     - Location: src/utils.js, src/server.js, src/config.js, test/utils.test.js
+
+18. **Subreddit Selection Options** (Medium Priority)
+    - Added command options to /awwww command
+    - Created SUBREDDITS constant with 5 supported subreddits
+    - Implemented dropdown selection: r/aww, r/eyebleach, r/rarepuppers, r/cats, r/dogpictures
+    - Updated AWW_COMMAND with options array for Discord API
+    - Refactored cache.js from single cache to Map-based multi-subreddit cache
+    - Each subreddit has separate cache entry with 5-minute TTL
+    - Updated REDDIT_CONFIG to use API_BASE_URL and DEFAULT_SUBREDDIT
+    - Created getRedditUrl() function for dynamic subreddit URLs
+    - Updated getCutePost() and fetchFromReddit() to accept subreddit parameter
+    - Modified handleAwwCommand() to extract and use subreddit option from interaction
+    - Enhanced logging throughout to include subreddit context
+    - Maintains backward compatibility - defaults to r/aww when option not specified
+    - Improved user experience with multiple content sources
+    - Note: Requires running `npm run register` after deployment
+    - Location: src/commands.js, src/server.js, src/reddit.js, src/cache.js, src/config.js
 
 ---
 
