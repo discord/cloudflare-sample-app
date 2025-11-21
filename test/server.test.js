@@ -8,6 +8,7 @@ import {
 import { AWW_COMMAND, INVITE_COMMAND } from '../src/commands.js';
 import sinon from 'sinon';
 import server from '../src/server.js';
+import * as reddit from '../src/reddit.js';
 
 describe('Server', () => {
   describe('GET /', () => {
@@ -83,6 +84,42 @@ describe('Server', () => {
       expect(body.type).to.equal(
         InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       );
+    });
+
+    it('should handle errors from getCuteUrl() gracefully', async () => {
+      const getCuteUrlStub = sinon
+        .stub(reddit, 'getCuteUrl')
+        .rejects(new Error('Reddit API error'));
+
+      const interaction = {
+        type: InteractionType.APPLICATION_COMMAND,
+        data: {
+          name: AWW_COMMAND.name,
+        },
+      };
+
+      const request = {
+        method: 'POST',
+        url: new URL('/', 'http://discordo.example'),
+      };
+
+      const env = {};
+
+      verifyDiscordRequestStub.resolves({
+        isValid: true,
+        interaction: interaction,
+      });
+
+      const response = await server.fetch(request, env);
+      const body = await response.json();
+
+      expect(body.type).to.equal(
+        InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      );
+      expect(body.data.content).to.include('error');
+      expect(body.data.flags).to.equal(InteractionResponseFlags.EPHEMERAL);
+
+      getCuteUrlStub.restore();
     });
 
     it('should handle an invite command interaction', async () => {

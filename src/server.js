@@ -12,7 +12,16 @@ import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
 import { getCuteUrl } from './reddit.js';
 import { InteractionResponseFlags } from 'discord-interactions';
 
+/**
+ * Custom Response class for returning JSON data with proper headers.
+ * @extends Response
+ */
 class JsonResponse extends Response {
+  /**
+   * Creates a new JSON response.
+   * @param {Object} body - The object to be serialized as JSON
+   * @param {ResponseInit} [init] - Optional response initialization options
+   */
   constructor(body, init) {
     const jsonBody = JSON.stringify(body);
     init = init || {
@@ -59,13 +68,25 @@ router.post('/', async (request, env) => {
     // Most user commands will come as `APPLICATION_COMMAND`.
     switch (interaction.data.name.toLowerCase()) {
       case AWW_COMMAND.name.toLowerCase(): {
-        const cuteUrl = await getCuteUrl();
-        return new JsonResponse({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: cuteUrl,
-          },
-        });
+        try {
+          const cuteUrl = await getCuteUrl();
+          return new JsonResponse({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: cuteUrl,
+            },
+          });
+        } catch (error) {
+          console.error('Error handling awwww command:', error);
+          return new JsonResponse({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content:
+                'Sorry, I encountered an error fetching cute content. Please try again later! 😿',
+              flags: InteractionResponseFlags.EPHEMERAL,
+            },
+          });
+        }
       }
       case INVITE_COMMAND.name.toLowerCase(): {
         const applicationId = env.DISCORD_APPLICATION_ID;
@@ -88,6 +109,12 @@ router.post('/', async (request, env) => {
 });
 router.all('*', () => new Response('Not Found.', { status: 404 }));
 
+/**
+ * Verifies that a Discord request is authentic using Ed25519 signature verification.
+ * @param {Request} request - The incoming HTTP request
+ * @param {Object} env - Environment variables containing DISCORD_PUBLIC_KEY
+ * @returns {Promise<{isValid: boolean, interaction?: Object}>} Validation result and parsed interaction
+ */
 async function verifyDiscordRequest(request, env) {
   const signature = request.headers.get('x-signature-ed25519');
   const timestamp = request.headers.get('x-signature-timestamp');
@@ -103,8 +130,18 @@ async function verifyDiscordRequest(request, env) {
   return { interaction: JSON.parse(body), isValid: true };
 }
 
+/**
+ * Server object exported as Cloudflare Worker handler.
+ * Implements the required fetch method for handling incoming requests.
+ */
 const server = {
   verifyDiscordRequest: verifyDiscordRequest,
+  /**
+   * Main fetch handler for the Cloudflare Worker.
+   * @param {Request} request - The incoming HTTP request
+   * @param {Object} env - Environment variables (DISCORD_PUBLIC_KEY, DISCORD_APPLICATION_ID, etc.)
+   * @returns {Promise<Response>} The HTTP response
+   */
   fetch: async function (request, env) {
     return router.handle(request, env);
   },
