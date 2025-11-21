@@ -1,6 +1,6 @@
 {
-  "extends": ["prettier", "eslint:recommended"],
-  "plugins": ["prettier"],
+  "extends": ["prettier", "eslint:recommended", "plugin:security/recommended"],
+  "plugins": ["prettier", "security"],
   "rules": {
     "prettier/prettier": ["error"]
   },

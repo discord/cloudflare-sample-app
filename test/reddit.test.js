@@ -2,12 +2,15 @@ import { expect } from 'chai';
 import { describe, it, beforeEach, afterEach } from 'mocha';
 import sinon from 'sinon';
 import { getCuteUrl } from '../src/reddit.js';
+import { clearCache } from '../src/cache.js';
 
 describe('Reddit', () => {
   describe('getCuteUrl()', () => {
     let fetchStub;
 
     beforeEach(() => {
+      // Clear cache before each test to ensure consistent behavior
+      clearCache();
       fetchStub = sinon.stub(global, 'fetch');
     });
 
@@ -258,6 +261,40 @@ describe('Reddit', () => {
       expect(fetchArgs[1].headers['User-Agent']).to.equal(
         'justinbeckwith:awwbot:v1.0.0 (by /u/justinblat)',
       );
+    });
+
+    it('should use cache on subsequent calls', async () => {
+      const mockResponse = {
+        ok: true,
+        json: async () => ({
+          data: {
+            children: [
+              {
+                data: {
+                  url: 'https://i.redd.it/cute1.jpg',
+                },
+              },
+              {
+                data: {
+                  url: 'https://i.redd.it/cute2.jpg',
+                },
+              },
+            ],
+          },
+        }),
+      };
+
+      fetchStub.resolves(mockResponse);
+
+      // First call should fetch from API
+      const result1 = await getCuteUrl();
+      expect(result1).to.be.a('string');
+      expect(fetchStub).to.have.been.calledOnce;
+
+      // Second call should use cache (no additional fetch)
+      const result2 = await getCuteUrl();
+      expect(result2).to.be.a('string');
+      expect(fetchStub).to.have.been.calledOnce; // Still only one call
     });
   });
 });
