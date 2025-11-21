@@ -1,5 +1,6 @@
 import { getFromCache, updateCache, isCacheValid } from './cache.js';
-import { REDDIT_CONFIG, ERROR_MESSAGES, LOG_MESSAGES } from './config.js';
+import { REDDIT_CONFIG, ERROR_MESSAGES } from './config.js';
+import logger from './logger.js';
 
 /**
  * Checks if a Reddit post is safe and suitable for display.
@@ -115,7 +116,10 @@ async function fetchFromReddit() {
     throw new Error(ERROR_MESSAGES.NO_VALID_POSTS);
   }
 
-  console.log(LOG_MESSAGES.POSTS_FETCHED(posts.length));
+  logger.info('Fetched posts from Reddit', {
+    count: posts.length,
+    source: 'r/aww'
+  });
   return posts;
 }
 
@@ -126,18 +130,25 @@ async function fetchFromReddit() {
  * @throws {Error} When Reddit API is unavailable or returns no valid posts.
  */
 export async function getCutePost() {
+  const timer = logger.startTimer('reddit_fetch');
   try {
     // Try to get from cache first
     if (isCacheValid()) {
       const cachedPost = getFromCache();
       if (cachedPost) {
-        console.log(LOG_MESSAGES.CACHE_HIT);
+        logger.info('Cache hit - returning cached post', {
+          cacheSource: 'memory',
+          postTitle: cachedPost.title
+        });
+        timer.end({ cacheHit: true });
         return cachedPost;
       }
     }
 
     // Cache miss or expired - fetch from Reddit
-    console.log(LOG_MESSAGES.CACHE_MISS);
+    logger.info('Cache miss - fetching from Reddit API', {
+      cacheSource: 'memory'
+    });
     const posts = await fetchFromReddit();
 
     // Update cache with fresh posts
@@ -145,9 +156,15 @@ export async function getCutePost() {
 
     // Return a random post
     const randomIndex = Math.floor(Math.random() * posts.length);
-    return posts[randomIndex];
+    const selectedPost = posts[randomIndex];
+    timer.end({ cacheHit: false, postTitle: selectedPost.title });
+    return selectedPost;
   } catch (error) {
-    console.error('Error fetching cute content from Reddit:', error);
+    timer.end({ success: false });
+    logger.error('Error fetching cute content from Reddit', {
+      error,
+      operation: 'getCutePost'
+    });
     throw error;
   }
 }

@@ -44,12 +44,3 @@ export const ERROR_MESSAGES = {
   NO_POSTS_FOUND: 'No posts found in r/aww',
   NO_VALID_POSTS: 'No valid media posts found in r/aww',
 };
-
-/**
- * Success messages for logging
- */
-export const LOG_MESSAGES = {
-  CACHE_HIT: 'Returning cute post from cache',
-  CACHE_MISS: 'Fetching fresh cute posts from Reddit API',
-  POSTS_FETCHED: (count) => `Fetched ${count} valid cute posts from Reddit`,
-};
