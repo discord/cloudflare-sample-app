@@ -3,15 +3,17 @@
  */
 
 import { Router } from 'itty-router';
-import {
-  InteractionResponseType,
-  InteractionType,
-  verifyKey,
-} from 'discord-interactions';
+import { InteractionType, verifyKey } from 'discord-interactions';
 import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
 import { getCutePost } from './reddit.js';
-import { InteractionResponseFlags } from 'discord-interactions';
-import { DISCORD_CONFIG, ERROR_MESSAGES } from './config.js';
+import { ERROR_MESSAGES } from './config.js';
+import {
+  createPongResponse,
+  createRedditPostResponse,
+  createInviteResponse,
+  createErrorResponse,
+  createUnknownCommandResponse,
+} from './responses.js';
 
 /**
  * Custom Response class for returning JSON data with proper headers.
@@ -60,9 +62,7 @@ router.post('/', async (request, env) => {
   if (interaction.type === InteractionType.PING) {
     // The `PING` message is used during the initial webhook handshake, and is
     // required to configure the webhook in the developer portal.
-    return new JsonResponse({
-      type: InteractionResponseType.PONG,
-    });
+    return new JsonResponse(createPongResponse());
   }
 
   if (interaction.type === InteractionType.APPLICATION_COMMAND) {
@@ -71,55 +71,27 @@ router.post('/', async (request, env) => {
       case AWW_COMMAND.name.toLowerCase(): {
         try {
           const post = await getCutePost();
-
-          // Create rich embed with post metadata
-          const embed = {
-            title: post.title,
-            url: post.permalink,
-            color: DISCORD_CONFIG.EMBED_COLOR,
-            image: {
-              url: post.url,
-            },
-            footer: {
-              text: `👍 ${post.score} upvotes • Posted by u/${post.author} in r/${post.subreddit}`,
-            },
-          };
-
-          return new JsonResponse({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              embeds: [embed],
-            },
-          });
+          return new JsonResponse(createRedditPostResponse(post));
         } catch (error) {
           console.error('Error handling awwww command:', error);
-          return new JsonResponse({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content: ERROR_MESSAGES.REDDIT_API_ERROR,
-              flags: InteractionResponseFlags.EPHEMERAL,
-            },
-          });
+          return new JsonResponse(
+            createErrorResponse(ERROR_MESSAGES.REDDIT_API_ERROR),
+          );
         }
       }
       case INVITE_COMMAND.name.toLowerCase(): {
         const applicationId = env.DISCORD_APPLICATION_ID;
-        const INVITE_URL = `https://discord.com/oauth2/authorize?client_id=${applicationId}&scope=applications.commands`;
-        return new JsonResponse({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: INVITE_URL,
-            flags: InteractionResponseFlags.EPHEMERAL,
-          },
-        });
+        return new JsonResponse(createInviteResponse(applicationId));
       }
       default:
-        return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
+        return new JsonResponse(createUnknownCommandResponse(), {
+          status: 400,
+        });
     }
   }
 
   console.error('Unknown Type');
-  return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
+  return new JsonResponse(createUnknownCommandResponse(), { status: 400 });
 });
 router.all('*', () => new Response('Not Found.', { status: 404 }));
 
