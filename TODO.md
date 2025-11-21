@@ -16,11 +16,12 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
   - Test all commands after upgrade
   - Location: package.json:22
 
-- [ ] **Update itty-router** from 4.0.13 to 5.0.22
-  - Review migration guide for v5
-  - Update router syntax if breaking changes
-  - Test all routes after upgrade
-  - Location: package.json:23
+- [x] **Update itty-router** from 4.0.13 to 5.0.22
+  - ✅ Reviewed v5 migration guide
+  - ✅ Updated router.handle() to router.fetch()
+  - ✅ No other breaking changes affecting our code
+  - ✅ Backward compatible with existing functionality
+  - Location: package.json:23, src/server.js
 
 - [x] **Add rate limiting** to Reddit API calls
   - ✅ Implemented in-memory caching for r/aww posts
@@ -92,18 +93,21 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
   - /health - Show bot health and uptime
   - Restrict to bot owner only
 
-- [ ] **Improve Reddit post filtering**
-  - Filter out NSFW posts (safety check)
-  - Filter out removed/deleted posts
-  - Prefer high-quality images
-  - Handle crosspost scenarios
-  - Location: src/reddit.js:14-25
+- [x] **Improve Reddit post filtering**
+  - ✅ Filter out NSFW posts (over_18 flag)
+  - ✅ Filter out removed/deleted posts
+  - ✅ Filter low-quality posts (score < 10)
+  - ✅ Refactored with isValidPost() function
+  - ✅ Added extractMediaUrl() helper function
+  - Location: src/reddit.js
 
-- [ ] **Add embed support**
-  - Return rich embeds instead of plain URLs
-  - Include post title, author, score
-  - Better visual presentation
-  - Location: src/server.js:62-68
+- [x] **Add embed support**
+  - ✅ Return rich embeds with post metadata
+  - ✅ Include post title, author, score, subreddit
+  - ✅ Clickable title links to Reddit post
+  - ✅ Reddit orange branding color
+  - ✅ Better visual presentation in Discord
+  - Location: src/server.js, src/reddit.js
 
 ### Documentation
 
@@ -113,11 +117,16 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
   - ✅ Document reddit.js and cache.js functions
   - Location: src/server.js, src/reddit.js, src/cache.js
 
-- [ ] **Create CONTRIBUTING.md**
-  - Guidelines for contributors
-  - Code style requirements
-  - PR process
-  - Testing requirements
+- [x] **Create CONTRIBUTING.md**
+  - ✅ Comprehensive 200+ line contribution guide
+  - ✅ Development setup and workflow instructions
+  - ✅ Code style and ESLint guidelines
+  - ✅ Commit message conventions (Conventional Commits)
+  - ✅ PR process and template
+  - ✅ Testing guidelines and coverage goals
+  - ✅ Security considerations
+  - ✅ Cloudflare Workers constraints documentation
+  - Location: CONTRIBUTING.md
 
 - [ ] **Add API documentation**
   - Document internal API structure
@@ -266,6 +275,44 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
    - Created comprehensive CLAUDE.md for AI assistants
    - Created detailed TODO.md for task tracking
    - Documented codebase structure and conventions
+
+### 2025-11-21 - Continued Improvements (Session 2)
+
+7. **itty-router v5 Migration** (High Priority)
+   - Updated itty-router from 4.0.13 to 5.0.22
+   - Changed router.handle() to router.fetch() per v5 migration guide
+   - Tested and verified backward compatibility
+   - No other breaking changes affected codebase
+
+8. **Reddit Post Filtering Enhancement** (Medium Priority)
+   - Implemented isValidPost() function with comprehensive checks
+   - Filter NSFW content (over_18 flag)
+   - Filter removed/deleted posts
+   - Filter low-quality posts (score < 10)
+   - Added extractMediaUrl() helper for cleaner code organization
+   - Added extractPostData() to capture post metadata
+
+9. **Rich Embed Support** (Medium Priority)
+   - Refactored API to return post objects with metadata
+   - Added getCutePost() function for full post data
+   - Maintained getCuteUrl() for backward compatibility
+   - Implemented Discord rich embeds with:
+     - Post title (clickable to Reddit)
+     - Post image/video
+     - Footer with upvotes, author, and subreddit
+     - Reddit orange branding color (0xff4500)
+   - Significantly improved visual presentation
+
+10. **CONTRIBUTING.md Creation** (Medium Priority)
+    - Created comprehensive 200+ line contribution guide
+    - Documented development workflow and setup
+    - Code style guidelines and ESLint configuration
+    - Commit message conventions (Conventional Commits)
+    - PR process with template
+    - Testing guidelines and coverage goals
+    - Security considerations and best practices
+    - Cloudflare Workers constraints
+    - How to add new commands
 
 ---
 
