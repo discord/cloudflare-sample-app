@@ -103,10 +103,20 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
   - Use Cloudflare KV or Durable Objects
   - Return friendly cooldown message
 
-- [ ] **Add admin commands**
-  - /stats - Show bot usage statistics
-  - /health - Show bot health and uptime
-  - Restrict to bot owner only
+- [x] **Add admin commands**
+  - ✅ Created STATS_COMMAND and HEALTH_COMMAND
+  - ✅ /stats - Shows detailed usage statistics with rich embed
+  - ✅ /health - Shows bot health status with error rate monitoring
+  - ✅ Implemented owner-only authorization check
+  - ✅ Created src/stats.js for comprehensive usage tracking
+  - ✅ Track commands, cache performance, errors, timeouts, subreddit requests
+  - ✅ Integrated stats tracking throughout server.js and reddit.js
+  - ✅ Rich embeds with uptime, cache hit rate, command counts, error rates
+  - ✅ Color-coded health status (green/yellow/red based on error rate)
+  - ✅ Ephemeral responses for privacy
+  - ✅ Uses DISCORD_OWNER_ID environment variable
+  - Note: Set DISCORD_OWNER_ID and run `npm run register` after deployment
+  - Location: src/stats.js, src/commands.js, src/server.js, src/responses.js, src/config.js
 
 - [x] **Improve Reddit post filtering**
   - ✅ Filter out NSFW posts (over_18 flag)
@@ -452,6 +462,31 @@ This document tracks tasks, improvements, and future features for the awwbot Dis
     - Improved user experience with multiple content sources
     - Note: Requires running `npm run register` after deployment
     - Location: src/commands.js, src/server.js, src/reddit.js, src/cache.js, src/config.js
+
+19. **Admin Commands and Usage Tracking** (Medium Priority)
+    - Created src/stats.js with comprehensive statistics tracking system
+    - Tracks total commands, command counts by type, cache performance, errors, timeouts
+    - Tracks subreddit request distribution for analytics
+    - Provides getCacheHitRate() for performance monitoring
+    - Provides formatUptime() for human-readable uptime display
+    - Added STATS_COMMAND to commands.js (admin-only)
+    - Added HEALTH_COMMAND to commands.js (admin-only)
+    - Created handleStatsCommand() in server.js with authorization check
+    - Created handleHealthCommand() in server.js with authorization check
+    - Implemented isAuthorized() helper using DISCORD_OWNER_ID environment variable
+    - Created createStatsResponse() in responses.js with rich embed
+    - Created createHealthResponse() in responses.js with color-coded health status
+    - Created createUnauthorizedResponse() for non-admin users
+    - Integrated stats tracking throughout server.js (all command handlers)
+    - Integrated cache tracking in reddit.js (recordCacheHit/Miss)
+    - Updated register.js to register all four commands with Discord
+    - Stats embed shows: uptime, total commands, cache hit rate, command breakdown, subreddit distribution, errors
+    - Health embed shows: health status (green/yellow/red), uptime, error rate, total requests
+    - Owner-only access prevents unauthorized data access
+    - Ephemeral responses for privacy
+    - Per-Worker instance statistics suitable for distributed deployments
+    - Note: Requires setting DISCORD_OWNER_ID environment variable and running `npm run register`
+    - Location: src/stats.js, src/commands.js, src/server.js, src/reddit.js, src/responses.js, src/config.js, src/register.js
 
 ---
 
