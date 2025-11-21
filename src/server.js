@@ -11,6 +11,7 @@ import {
 import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
 import { getCutePost } from './reddit.js';
 import { InteractionResponseFlags } from 'discord-interactions';
+import { DISCORD_CONFIG, ERROR_MESSAGES } from './config.js';
 
 /**
  * Custom Response class for returning JSON data with proper headers.
@@ -75,7 +76,7 @@ router.post('/', async (request, env) => {
           const embed = {
             title: post.title,
             url: post.permalink,
-            color: 0xff4500, // Reddit orange color
+            color: DISCORD_CONFIG.EMBED_COLOR,
             image: {
               url: post.url,
             },
@@ -95,8 +96,7 @@ router.post('/', async (request, env) => {
           return new JsonResponse({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              content:
-                'Sorry, I encountered an error fetching cute content. Please try again later! 😿',
+              content: ERROR_MESSAGES.REDDIT_API_ERROR,
               flags: InteractionResponseFlags.EPHEMERAL,
             },
           });

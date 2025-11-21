@@ -1,3 +1,5 @@
+import { CACHE_CONFIG } from './config.js';
+
 /**
  * Simple in-memory cache for Cloudflare Workers.
  * Stores Reddit posts temporarily to reduce API calls.
@@ -9,9 +11,6 @@
  * @property {Array<string>} posts - Array of cute post URLs
  * @property {number} timestamp - When the cache was created (ms since epoch)
  */
-
-// Cache TTL in milliseconds (5 minutes)
-const CACHE_TTL = 5 * 60 * 1000;
 
 // Global cache object (persists across requests in the same Worker instance)
 let cache = {
@@ -26,7 +25,7 @@ let cache = {
 export function isCacheValid() {
   const now = Date.now();
   const hasData = cache.posts && cache.posts.length > 0;
-  const notExpired = now - cache.timestamp < CACHE_TTL;
+  const notExpired = now - cache.timestamp < CACHE_CONFIG.TTL_MS;
   return hasData && notExpired;
 }
 

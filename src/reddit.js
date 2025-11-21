@@ -1,4 +1,5 @@
 import { getFromCache, updateCache, isCacheValid } from './cache.js';
+import { REDDIT_CONFIG, ERROR_MESSAGES, LOG_MESSAGES } from './config.js';
 
 /**
  * Checks if a Reddit post is safe and suitable for display.
@@ -24,7 +25,10 @@ function isValidPost(post) {
   }
 
   // Filter out posts with very low scores (likely spam or low quality)
-  if (postData.score !== undefined && postData.score < 10) {
+  if (
+    postData.score !== undefined &&
+    postData.score < REDDIT_CONFIG.MIN_POST_SCORE
+  ) {
     return false;
   }
 
@@ -83,9 +87,9 @@ function extractPostData(post) {
  * @throws {Error} When Reddit API is unavailable or returns no valid posts
  */
 async function fetchFromReddit() {
-  const response = await fetch('https://www.reddit.com/r/aww/hot.json', {
+  const response = await fetch(REDDIT_CONFIG.API_URL, {
     headers: {
-      'User-Agent': 'justinbeckwith:awwbot:v1.0.0 (by /u/justinblat)',
+      'User-Agent': REDDIT_CONFIG.USER_AGENT,
     },
   });
 
@@ -98,7 +102,7 @@ async function fetchFromReddit() {
   const data = await response.json();
 
   if (!data?.data?.children || data.data.children.length === 0) {
-    throw new Error('No posts found in r/aww');
+    throw new Error(ERROR_MESSAGES.NO_POSTS_FOUND);
   }
 
   // Filter posts for quality and safety, then extract post data
@@ -108,10 +112,10 @@ async function fetchFromReddit() {
     .filter((post) => !!post.url);
 
   if (posts.length === 0) {
-    throw new Error('No valid media posts found in r/aww');
+    throw new Error(ERROR_MESSAGES.NO_VALID_POSTS);
   }
 
-  console.log(`Fetched ${posts.length} valid cute posts from Reddit`);
+  console.log(LOG_MESSAGES.POSTS_FETCHED(posts.length));
   return posts;
 }
 
@@ -127,13 +131,13 @@ export async function getCutePost() {
     if (isCacheValid()) {
       const cachedPost = getFromCache();
       if (cachedPost) {
-        console.log('Returning cute post from cache');
+        console.log(LOG_MESSAGES.CACHE_HIT);
         return cachedPost;
       }
     }
 
     // Cache miss or expired - fetch from Reddit
-    console.log('Fetching fresh cute posts from Reddit API');
+    console.log(LOG_MESSAGES.CACHE_MISS);
     const posts = await fetchFromReddit();
 
     // Update cache with fresh posts
