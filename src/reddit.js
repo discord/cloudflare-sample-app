@@ -1,6 +1,7 @@
 import { getFromCache, updateCache, isCacheValid } from './cache.js';
 import { REDDIT_CONFIG, ERROR_MESSAGES, getRedditUrl } from './config.js';
 import logger from './logger.js';
+import { recordCacheHit, recordCacheMiss } from './stats.js';
 
 /**
  * Checks if a Reddit post is safe and suitable for display.
@@ -139,6 +140,7 @@ export async function getCutePost(subreddit = REDDIT_CONFIG.DEFAULT_SUBREDDIT) {
     if (isCacheValid(subreddit)) {
       const cachedPost = getFromCache(subreddit);
       if (cachedPost) {
+        recordCacheHit();
         logger.info('Cache hit - returning cached post', {
           cacheSource: 'memory',
           subreddit: `r/${subreddit}`,
@@ -150,6 +152,7 @@ export async function getCutePost(subreddit = REDDIT_CONFIG.DEFAULT_SUBREDDIT) {
     }
 
     // Cache miss or expired - fetch from Reddit
+    recordCacheMiss();
     logger.info('Cache miss - fetching from Reddit API', {
       cacheSource: 'memory',
       subreddit: `r/${subreddit}`

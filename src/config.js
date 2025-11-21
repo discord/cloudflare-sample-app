@@ -49,6 +49,11 @@ export const DISCORD_CONFIG = {
   // Timeout for async operations to ensure we respond in time (2.5 seconds)
   // Slightly less than MAX_RESPONSE_TIME_MS to allow for response processing
   OPERATION_TIMEOUT_MS: 2500,
+
+  // Bot owner Discord user ID (for admin commands)
+  // This should be set via environment variable DISCORD_OWNER_ID
+  // If not set, admin commands will be disabled
+  getOwnerId: (env) => env?.DISCORD_OWNER_ID || null,
 };
 
 /**

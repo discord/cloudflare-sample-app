@@ -60,3 +60,13 @@ export const INVITE_COMMAND = {
   name: 'invite',
   description: 'Get an invite link to add the bot to your server',
 };
+
+export const STATS_COMMAND = {
+  name: 'stats',
+  description: 'Show bot usage statistics (admin only)',
+};
+
+export const HEALTH_COMMAND = {
+  name: 'health',
+  description: 'Show bot health and uptime (admin only)',
+};

@@ -123,3 +123,137 @@ export function createUnknownCommandResponse() {
     },
   };
 }
+
+/**
+ * Creates a statistics response embed.
+ * @param {Object} stats - Statistics object
+ * @param {string} formattedUptime - Formatted uptime string
+ * @param {number} cacheHitRate - Cache hit rate percentage
+ * @returns {Object} Discord embed response for statistics
+ */
+export function createStatsResponse(stats, formattedUptime, cacheHitRate) {
+  const commandsList =
+    Object.entries(stats.commandCounts)
+      .map(([cmd, count]) => `• ${cmd}: ${count}`)
+      .join('\n') || '• No commands executed yet';
+
+  const subredditsList =
+    Object.entries(stats.subredditRequests)
+      .sort(([, a], [, b]) => b - a)
+      .map(([sub, count]) => `• r/${sub}: ${count}`)
+      .join('\n') || '• No subreddit requests yet';
+
+  const embed = {
+    title: '📊 Bot Statistics',
+    color: DISCORD_CONFIG.EMBED_COLOR,
+    fields: [
+      {
+        name: '⏱️ Uptime',
+        value: formattedUptime,
+        inline: true,
+      },
+      {
+        name: '🎯 Total Commands',
+        value: stats.totalCommands.toString(),
+        inline: true,
+      },
+      {
+        name: '💾 Cache Hit Rate',
+        value: `${cacheHitRate}%`,
+        inline: true,
+      },
+      {
+        name: '📝 Commands',
+        value: commandsList,
+        inline: false,
+      },
+      {
+        name: '🎨 Subreddits',
+        value: subredditsList,
+        inline: false,
+      },
+      {
+        name: '❌ Errors',
+        value: `${stats.errors} total (${stats.timeouts} timeouts)`,
+        inline: true,
+      },
+      {
+        name: '📦 Cache Stats',
+        value: `${stats.cacheHits} hits, ${stats.cacheMisses} misses`,
+        inline: true,
+      },
+    ],
+    footer: {
+      text: 'Statistics for this Worker instance',
+    },
+    timestamp: new Date().toISOString(),
+  };
+
+  return createEmbedResponse(embed, true);
+}
+
+/**
+ * Creates a health check response embed.
+ * @param {string} formattedUptime - Formatted uptime string
+ * @param {number} totalRequests - Total number of requests
+ * @param {number} errorCount - Number of errors
+ * @returns {Object} Discord embed response for health check
+ */
+export function createHealthResponse(formattedUptime, totalRequests, errorCount) {
+  const errorRate = totalRequests > 0
+    ? ((errorCount / totalRequests) * 100).toFixed(2)
+    : '0.00';
+
+  const healthStatus = errorRate < 5 ? '✅ Healthy' : errorRate < 20 ? '⚠️ Degraded' : '❌ Unhealthy';
+
+  const embed = {
+    title: '🏥 Bot Health Status',
+    color: errorRate < 5 ? 0x00ff00 : errorRate < 20 ? 0xffaa00 : 0xff0000,
+    fields: [
+      {
+        name: 'Status',
+        value: healthStatus,
+        inline: true,
+      },
+      {
+        name: 'Uptime',
+        value: formattedUptime,
+        inline: true,
+      },
+      {
+        name: 'Error Rate',
+        value: `${errorRate}%`,
+        inline: true,
+      },
+      {
+        name: 'Total Requests',
+        value: totalRequests.toString(),
+        inline: true,
+      },
+      {
+        name: 'Total Errors',
+        value: errorCount.toString(),
+        inline: true,
+      },
+      {
+        name: 'Platform',
+        value: 'Cloudflare Workers',
+        inline: true,
+      },
+    ],
+    footer: {
+      text: 'Health check for this Worker instance',
+    },
+    timestamp: new Date().toISOString(),
+  };
+
+  return createEmbedResponse(embed, true);
+}
+
+/**
+ * Creates an unauthorized access response.
+ * @returns {Object} Error response for unauthorized access
+ */
+export function createUnauthorizedResponse() {
+  return createErrorResponse('⛔ This command is restricted to bot administrators only.');
+}

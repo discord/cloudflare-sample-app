@@ -4,7 +4,7 @@
 
 import { Router } from 'itty-router';
 import { InteractionType, verifyKey } from 'discord-interactions';
-import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
+import { AWW_COMMAND, INVITE_COMMAND, STATS_COMMAND, HEALTH_COMMAND } from './commands.js';
 import { getCutePost } from './reddit.js';
 import { ERROR_MESSAGES, DISCORD_CONFIG } from './config.js';
 import {
@@ -13,9 +13,20 @@ import {
   createInviteResponse,
   createErrorResponse,
   createUnknownCommandResponse,
+  createStatsResponse,
+  createHealthResponse,
+  createUnauthorizedResponse,
 } from './responses.js';
 import logger from './logger.js';
 import { withTimeout, isTimeoutError } from './utils.js';
+import {
+  recordCommand,
+  recordError,
+  recordSubredditRequest,
+  getStats,
+  getCacheHitRate,
+  formatUptime,
+} from './stats.js';
 
 /**
  * Custom Response class for returning JSON data with proper headers.
@@ -60,12 +71,28 @@ function handlePingInteraction() {
 }
 
 /**
+ * Checks if a user is authorized to use admin commands.
+ * @param {Object} interaction - The Discord interaction object
+ * @param {Object} env - Environment variables
+ * @returns {boolean} True if user is authorized
+ */
+function isAuthorized(interaction, env) {
+  const ownerId = DISCORD_CONFIG.getOwnerId(env);
+  if (!ownerId) {
+    return false; // Admin commands disabled if no owner ID set
+  }
+  return interaction?.member?.user?.id === ownerId || interaction?.user?.id === ownerId;
+}
+
+/**
  * Handles the /awwww command.
  * @param {Object} [interaction] - The Discord interaction object (optional)
  * @returns {Promise<JsonResponse>} Response with cute Reddit post or error
  */
 async function handleAwwCommand(interaction) {
   const timer = logger.startTimer('awwww_command');
+  recordCommand(AWW_COMMAND.name);
+
   try {
     // Extract subreddit option from interaction (if provided)
     const subreddit = interaction?.data?.options?.find(opt => opt.name === 'subreddit')?.value;
@@ -73,6 +100,9 @@ async function handleAwwCommand(interaction) {
     logger.logInteraction('APPLICATION_COMMAND', AWW_COMMAND.name, 'Processing awwww command', {
       subreddit: subreddit ? `r/${subreddit}` : 'default (r/aww)'
     });
+
+    // Record subreddit request for stats
+    recordSubredditRequest(subreddit || 'aww');
 
     // Wrap getCutePost with timeout to ensure we respond within Discord's 3-second limit
     const post = await withTimeout(
@@ -85,6 +115,7 @@ async function handleAwwCommand(interaction) {
     return new JsonResponse(createRedditPostResponse(post));
   } catch (error) {
     timer.end({ success: false, timeout: isTimeoutError(error) });
+    recordError(isTimeoutError(error));
 
     // Check if it's a timeout error
     if (isTimeoutError(error)) {
@@ -114,9 +145,63 @@ async function handleAwwCommand(interaction) {
  * @returns {JsonResponse} Response with invite link
  */
 function handleInviteCommand(env) {
+  recordCommand(INVITE_COMMAND.name);
   logger.logInteraction('APPLICATION_COMMAND', INVITE_COMMAND.name, 'Processing invite command');
   const applicationId = env.DISCORD_APPLICATION_ID;
   return new JsonResponse(createInviteResponse(applicationId));
+}
+
+/**
+ * Handles the /stats command (admin only).
+ * @param {Object} interaction - The Discord interaction object
+ * @param {Object} env - Environment variables
+ * @returns {JsonResponse} Response with bot statistics or unauthorized error
+ */
+function handleStatsCommand(interaction, env) {
+  recordCommand(STATS_COMMAND.name);
+  logger.logInteraction('APPLICATION_COMMAND', STATS_COMMAND.name, 'Processing stats command');
+
+  // Check authorization
+  if (!isAuthorized(interaction, env)) {
+    logger.warn('Unauthorized stats command attempt', {
+      userId: interaction?.member?.user?.id || interaction?.user?.id
+    });
+    return new JsonResponse(createUnauthorizedResponse());
+  }
+
+  // Get statistics
+  const stats = getStats();
+  const cacheHitRate = getCacheHitRate();
+  const formattedUptime = formatUptime(stats.uptime);
+
+  return new JsonResponse(createStatsResponse(stats, formattedUptime, cacheHitRate));
+}
+
+/**
+ * Handles the /health command (admin only).
+ * @param {Object} interaction - The Discord interaction object
+ * @param {Object} env - Environment variables
+ * @returns {JsonResponse} Response with bot health status or unauthorized error
+ */
+function handleHealthCommand(interaction, env) {
+  recordCommand(HEALTH_COMMAND.name);
+  logger.logInteraction('APPLICATION_COMMAND', HEALTH_COMMAND.name, 'Processing health command');
+
+  // Check authorization
+  if (!isAuthorized(interaction, env)) {
+    logger.warn('Unauthorized health command attempt', {
+      userId: interaction?.member?.user?.id || interaction?.user?.id
+    });
+    return new JsonResponse(createUnauthorizedResponse());
+  }
+
+  // Get health information
+  const stats = getStats();
+  const formattedUptime = formatUptime(stats.uptime);
+
+  return new JsonResponse(
+    createHealthResponse(formattedUptime, stats.totalCommands, stats.errors)
+  );
 }
 
 /**
@@ -160,6 +245,10 @@ async function handleApplicationCommand(interaction, env) {
       return await handleAwwCommand(interaction);
     case INVITE_COMMAND.name.toLowerCase():
       return handleInviteCommand(env);
+    case STATS_COMMAND.name.toLowerCase():
+      return handleStatsCommand(interaction, env);
+    case HEALTH_COMMAND.name.toLowerCase():
+      return handleHealthCommand(interaction, env);
     default:
       return handleUnknownCommand(interaction.data.name);
   }
