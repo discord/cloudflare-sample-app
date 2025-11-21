@@ -6,7 +6,7 @@ import { Router } from 'itty-router';
 import { InteractionType, verifyKey } from 'discord-interactions';
 import { AWW_COMMAND, INVITE_COMMAND } from './commands.js';
 import { getCutePost } from './reddit.js';
-import { ERROR_MESSAGES } from './config.js';
+import { ERROR_MESSAGES, DISCORD_CONFIG } from './config.js';
 import {
   createPongResponse,
   createRedditPostResponse,
@@ -15,6 +15,7 @@ import {
   createUnknownCommandResponse,
 } from './responses.js';
 import logger from './logger.js';
+import { withTimeout, isTimeoutError } from './utils.js';
 
 /**
  * Custom Response class for returning JSON data with proper headers.
@@ -66,11 +67,31 @@ async function handleAwwCommand() {
   const timer = logger.startTimer('awwww_command');
   try {
     logger.logInteraction('APPLICATION_COMMAND', AWW_COMMAND.name, 'Processing awwww command');
-    const post = await getCutePost();
+
+    // Wrap getCutePost with timeout to ensure we respond within Discord's 3-second limit
+    const post = await withTimeout(
+      getCutePost(),
+      DISCORD_CONFIG.OPERATION_TIMEOUT_MS,
+      'getCutePost'
+    );
+
     timer.end({ success: true, postTitle: post.title });
     return new JsonResponse(createRedditPostResponse(post));
   } catch (error) {
-    timer.end({ success: false });
+    timer.end({ success: false, timeout: isTimeoutError(error) });
+
+    // Check if it's a timeout error
+    if (isTimeoutError(error)) {
+      logger.warn('Command timed out', {
+        command: AWW_COMMAND.name,
+        timeoutMs: DISCORD_CONFIG.OPERATION_TIMEOUT_MS
+      });
+      return new JsonResponse(
+        createErrorResponse(ERROR_MESSAGES.TIMEOUT_ERROR),
+      );
+    }
+
+    // Regular error handling
     logger.error('Error handling awwww command', {
       error,
       command: AWW_COMMAND.name

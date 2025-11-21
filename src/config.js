@@ -33,6 +33,10 @@ export const DISCORD_CONFIG = {
 
   // Maximum response time for Discord interactions (3 seconds)
   MAX_RESPONSE_TIME_MS: 3000,
+
+  // Timeout for async operations to ensure we respond in time (2.5 seconds)
+  // Slightly less than MAX_RESPONSE_TIME_MS to allow for response processing
+  OPERATION_TIMEOUT_MS: 2500,
 };
 
 /**
@@ -43,4 +47,6 @@ export const ERROR_MESSAGES = {
     'Sorry, I encountered an error fetching cute content. Please try again later! 😿',
   NO_POSTS_FOUND: 'No posts found in r/aww',
   NO_VALID_POSTS: 'No valid media posts found in r/aww',
+  TIMEOUT_ERROR:
+    'Sorry, the request took too long to process. Please try again! ⏱️',
 };
