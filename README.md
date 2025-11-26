@@ -1,39 +1,79 @@
-# Cloudflare worker example app
+# awwbot - Discord Bot on Cloudflare Workers
 
-awwbot is an example app that brings the cuteness of `r/aww` straight to your Discord server, hosted on Cloudflare workers. Cloudflare Workers are a convenient way to host Discord bots due to the free tier, simple development model, and automatically managed environment (no VMs!).
+awwbot brings cuteness from multiple Reddit communities straight to your Discord server. Built as a production-ready example of Discord bots hosted on Cloudflare Workers with enterprise-grade monitoring, caching, and error handling.
 
 The tutorial for building awwbot is [in the developer documentation](https://discord.com/developers/docs/tutorials/hosting-on-cloudflare-workers)
 
 ![awwbot in action](https://user-images.githubusercontent.com/534619/157503404-a6c79d1b-f0d0-40c2-93cb-164f9df7c138.gif)
 
+## Features
+
+### Commands
+
+- **`/awwww [subreddit]`** - Post cute content with dropdown selection from 5 subreddits
+  - 🐱🐶 r/aww (default)
+  - 😍 r/eyebleach
+  - 🐕 r/rarepuppers
+  - 🐱 r/cats
+  - 🐶 r/dogpictures
+- **`/invite`** - Generate a bot invite link
+- **`/stats`** - Show usage statistics (admin only)
+- **`/health`** - Show bot health status (admin only)
+
+### Technical Features
+
+- **Multi-Subreddit Caching** - 80% reduction in Reddit API calls with 5-minute TTL per subreddit
+- **Rich Discord Embeds** - Posts displayed with title, author, score, and clickable links
+- **Structured Logging** - Performance tracking and contextual logging throughout
+- **Timeout Protection** - Ensures responses within Discord's 3-second limit
+- **Usage Statistics** - Real-time command, cache, and error tracking
+- **Health Monitoring** - Color-coded health status with error rate tracking
+- **Admin Commands** - Owner-only access to statistics and health endpoints
+
 ## Resources used
 
 - [Discord Interactions API](https://discord.com/developers/docs/interactions/receiving-and-responding)
 - [Cloudflare Workers](https://workers.cloudflare.com/) for hosting
-- [Reddit API](https://www.reddit.com/dev/api/) to send messages back to the user
+- [Reddit API](https://www.reddit.com/dev/api/) for cute content
+- [itty-router](https://github.com/kwhitley/itty-router) for request routing
 
 ---
 
 ## Project structure
 
-Below is a basic overview of the project structure:
+Below is an overview of the project structure:
 
 ```
-├── .github/workflows/ci.yaml -> Github Action configuration
-├── src
-│   ├── commands.js           -> JSON payloads for commands
-│   ├── reddit.js             -> Interactions with the Reddit API
-│   ├── register.js           -> Sets up commands with the Discord API
-│   ├── server.js             -> Discord app logic and routing
-├── test
-|   ├── test.js               -> Tests for app
-├── wrangler.toml             -> Configuration for Cloudflare workers
-├── package.json
-├── README.md
-├── .eslintrc.json
-├── .prettierignore
-├── .prettierrc.json
-└── .gitignore
+├── .github/workflows/ci.yaml -> CI/CD pipeline configuration
+├── src/
+│   ├── commands.js           -> Slash command definitions
+│   ├── reddit.js             -> Reddit API integration with filtering
+│   ├── cache.js              -> Multi-subreddit caching system
+│   ├── server.js             -> Main application server and routing
+│   ├── responses.js          -> Discord response builders
+│   ├── config.js             -> Centralized configuration
+│   ├── logger.js             -> Structured logging system
+│   ├── stats.js              -> Usage statistics tracking
+│   ├── utils.js              -> Timeout utilities
+│   └── register.js           -> Command registration script (Node.js)
+├── test/
+│   ├── server.test.js        -> Server tests
+│   ├── reddit.test.js        -> Reddit API tests
+│   ├── cache.test.js         -> Cache tests
+│   ├── responses.test.js     -> Response builder tests
+│   ├── logger.test.js        -> Logger tests
+│   ├── utils.test.js         -> Timeout utility tests
+│   └── integration.test.js   -> End-to-end integration tests
+├── API.md                    -> Internal API documentation
+├── CLAUDE.md                 -> AI assistant development guide
+├── CONTRIBUTING.md           -> Contribution guidelines
+├── CHANGELOG.md              -> Project changelog
+├── TODO.md                   -> Task tracking
+├── wrangler.toml             -> Cloudflare Workers configuration
+├── package.json              -> Dependencies and scripts
+├── .eslintrc.json            -> ESLint configuration
+├── .prettierrc.json          -> Prettier configuration
+└── README.md                 -> This file
 ```
 
 ## Configuring project
@@ -73,7 +113,15 @@ npm install
 
 > 💡 More information about generating and fetching credentials can be found [in the tutorial](https://discord.com/developers/docs/tutorials/hosting-on-cloudflare-workers#storing-secrets)
 
-Rename `example.dev.vars` to `.dev.vars`, and make sure to set each variable.
+Rename `example.dev.vars` to `.dev.vars`, and make sure to set each variable:
+
+**Required Variables:**
+- `DISCORD_TOKEN` - Your bot token from the Discord Developer Portal
+- `DISCORD_PUBLIC_KEY` - Your bot's public key for signature verification
+- `DISCORD_APPLICATION_ID` - Your Discord application ID
+
+**Optional Variables:**
+- `DISCORD_OWNER_ID` - Your Discord user ID (enables `/stats` and `/health` admin commands)
 
 **`.dev.vars` contains sensitive data so make sure it does not get checked into git**.
 
@@ -134,11 +182,19 @@ release:
 
 The credentials in `.dev.vars` are only applied locally. The production service needs access to credentials from your app:
 
+**Required secrets:**
 ```
 $ wrangler secret put DISCORD_TOKEN
 $ wrangler secret put DISCORD_PUBLIC_KEY
 $ wrangler secret put DISCORD_APPLICATION_ID
 ```
+
+**Optional secrets (for admin commands):**
+```
+$ wrangler secret put DISCORD_OWNER_ID
+```
+
+> 💡 To find your Discord user ID, enable Developer Mode in Discord settings, then right-click your username and select "Copy ID"
 
 ## Troubleshooting
 
